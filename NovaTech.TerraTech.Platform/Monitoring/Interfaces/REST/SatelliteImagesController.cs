@@ -10,8 +10,7 @@ namespace NovaTech.TerraTech.Platform.Monitoring.Interfaces.REST;
 [Route("api/v1/fields/{fieldId:int}/satellite-images")]
 [Tags("Monitoring")]
 public class SatelliteImagesController(
-    ISatelliteImageService satelliteImageService,
-    ILogger<SatelliteImagesController> logger) : ControllerBase
+    ISatelliteImageService satelliteImageService) : ControllerBase
 {
     [HttpGet("latest")]
     [SwaggerOperation(
