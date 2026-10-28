@@ -1728,6 +1728,45 @@
         }
       }
     },
+    "/api/v1/fields/{fieldId}/weather": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Gets the weather forecast for a field",
+        "description": "Retrieves the current weather forecast, rainfall probability and irrigation recommendation based on the field location and soil conditions",
+        "operationId": "GetFieldWeatherForecast",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The weather forecast was successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldWeatherResource"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The field was not found"
+          },
+          "502": {
+            "description": "The external weather service is unavailable"
+          }
+        }
+      }
+    },
     "/api/v1/fields/{fieldId}/devices": {
       "get": {
         "tags": [
@@ -3712,6 +3751,60 @@
         },
         "additionalProperties": false,
         "description": "Request payload to create a Report"
+      },
+      "CombinedRecommendationResource": {
+        "type": "object",
+        "properties": {
+          "suspensionRecommended": {
+            "type": "boolean"
+          },
+          "estimatedWaterSavingsLiters": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "FieldWeatherResource": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fieldName": {
+            "type": "string"
+          },
+          "forecastTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentTemperatureC": {
+            "type": "number",
+            "format": "double"
+          },
+          "relativeHumidityPercent": {
+            "type": "number",
+            "format": "double"
+          },
+          "windSpeedKmh": {
+            "type": "number",
+            "format": "double"
+          },
+          "precipitationProbability24h": {
+            "type": "number",
+            "format": "double"
+          },
+          "expectedPrecipitationMm": {
+            "type": "number",
+            "format": "double"
+          },
+          "combinedRecommendation": {
+            "$ref": "#/components/schemas/CombinedRecommendationResource"
+          }
+        }
       },
       "DeviceResource": {
         "type": "object",
