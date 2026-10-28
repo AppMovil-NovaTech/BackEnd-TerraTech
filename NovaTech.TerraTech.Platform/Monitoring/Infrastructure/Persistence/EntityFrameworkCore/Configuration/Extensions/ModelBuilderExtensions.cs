@@ -18,68 +18,98 @@ public static class ModelBuilderExtensions
                 .HasColumnType("longtext")
                 .Metadata.SetValueComparer(new FieldBoundaryComparer());
 
-            field.Property(f => f.Id).IsRequired().ValueGeneratedOnAdd();
+            field.Property(f => f.Id)
+                .IsRequired()
+                .ValueGeneratedOnAdd();
 
             field.OwnsOne(f => f.ProfileId, profile =>
             {
                 profile.WithOwner().HasForeignKey("Id");
-                profile.Property(p => p.Value).HasColumnName("ProfileId").IsRequired();
+                profile.Property(p => p.Value)
+                    .HasColumnName("ProfileId")
+                    .IsRequired();
             });
 
             field.OwnsOne(f => f.Name, name =>
             {
                 name.WithOwner().HasForeignKey("Id");
-                name.Property(n => n.Value).HasColumnName("Name").HasMaxLength(100).IsRequired();
+                name.Property(n => n.Value)
+                    .HasColumnName("Name")
+                    .HasMaxLength(100)
+                    .IsRequired();
             });
 
             field.OwnsOne(f => f.SizeM2, size =>
             {
                 size.WithOwner().HasForeignKey("Id");
-                size.Property(s => s.Value).HasColumnName("SizeM2").IsRequired();
+                size.Property(s => s.Value)
+                    .HasColumnName("SizeM2")
+                    .IsRequired();
             });
 
             field.OwnsOne(f => f.SoilType, soil =>
             {
                 soil.WithOwner().HasForeignKey("Id");
-                soil.Property(s => s.Value).HasColumnName("SoilType").HasMaxLength(50).IsRequired();
+                soil.Property(s => s.Value)
+                    .HasColumnName("SoilType")
+                    .HasMaxLength(50)
+                    .IsRequired();
             });
 
             field.OwnsOne(f => f.LocationLatLong, loc =>
             {
                 loc.WithOwner().HasForeignKey("Id");
-                loc.Property(l => l.Latitude).HasColumnName("Latitude").IsRequired();
-                loc.Property(l => l.Longitude).HasColumnName("Longitude").IsRequired();
+                loc.Property(l => l.Latitude)
+                    .HasColumnName("Latitude")
+                    .IsRequired();
+                loc.Property(l => l.Longitude)
+                    .HasColumnName("Longitude")
+                    .IsRequired();
             });
         });
 
         builder.Entity<Device>(device =>
         {
             device.HasKey(d => d.Id);
-            device.Property(d => d.Id).IsRequired().ValueGeneratedOnAdd();
+
+            device.Property(d => d.Id)
+                .IsRequired()
+                .ValueGeneratedOnAdd();
+
             device.Ignore(d => d.MacAddress);
 
             device.OwnsOne(d => d.FieldId, fieldId =>
             {
                 fieldId.WithOwner().HasForeignKey("Id");
-                fieldId.Property(f => f.Value).HasColumnName("FieldId").IsRequired();
+                fieldId.Property(f => f.Value)
+                    .HasColumnName("FieldId")
+                    .IsRequired();
             });
 
             device.OwnsOne(d => d.MacAddress, mac =>
             {
                 mac.WithOwner().HasForeignKey("Id");
-                mac.Property(m => m.Value).HasColumnName("MacAddress").HasMaxLength(17).IsRequired();
+                mac.Property(m => m.Value)
+                    .HasColumnName("MacAddress")
+                    .HasMaxLength(17)
+                    .IsRequired();
             });
 
             device.OwnsOne(d => d.Status, status =>
             {
                 status.WithOwner().HasForeignKey("Id");
-                status.Property(s => s.Value).HasColumnName("Status").HasMaxLength(20).IsRequired();
+                status.Property(s => s.Value)
+                    .HasColumnName("Status")
+                    .HasMaxLength(20)
+                    .IsRequired();
             });
 
             device.OwnsOne(d => d.LastSync, lastSync =>
             {
                 lastSync.WithOwner().HasForeignKey("Id");
-                lastSync.Property(l => l.Value).HasColumnName("LastSync").IsRequired();
+                lastSync.Property(l => l.Value)
+                    .HasColumnName("LastSync")
+                    .IsRequired();
             });
         });
 
@@ -122,7 +152,39 @@ public static class ModelBuilderExtensions
 
             zone.HasIndex(z => z.FieldId);
             zone.HasIndex(z => z.DeviceId);
+
+            // US18: Custom alert thresholds per fertility zone
+            zone.Property(z => z.MoistureMin)
+                .IsRequired()
+                .HasDefaultValue(25.0);
+
+            zone.Property(z => z.MoistureMax)
+                .IsRequired()
+                .HasDefaultValue(75.0);
+
+            zone.Property(z => z.NitrogenMin)
+                .IsRequired()
+                .HasDefaultValue(20.0);
+
+            zone.Property(z => z.NitrogenMax)
+                .IsRequired()
+                .HasDefaultValue(40.0);
+
+            zone.Property(z => z.PhosphorusMin)
+                .IsRequired()
+                .HasDefaultValue(15.0);
+
+            zone.Property(z => z.PhosphorusMax)
+                .IsRequired()
+                .HasDefaultValue(30.0);
+
+            zone.Property(z => z.PotassiumMin)
+                .IsRequired()
+                .HasDefaultValue(30.0);
+
+            zone.Property(z => z.PotassiumMax)
+                .IsRequired()
+                .HasDefaultValue(50.0);
         });
     }
 }
-
