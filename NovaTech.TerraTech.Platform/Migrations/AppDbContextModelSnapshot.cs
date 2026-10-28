@@ -309,11 +309,59 @@ namespace NovaTech.TerraTech.Platform.Migrations
                         .HasColumnType("int")
                         .HasColumnName("field_id");
 
+                    b.Property<double>("MoistureMax")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(75.0)
+                        .HasColumnName("moisture_max");
+
+                    b.Property<double>("MoistureMin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(25.0)
+                        .HasColumnName("moisture_min");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("name");
+
+                    b.Property<double>("NitrogenMax")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(40.0)
+                        .HasColumnName("nitrogen_max");
+
+                    b.Property<double>("NitrogenMin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(20.0)
+                        .HasColumnName("nitrogen_min");
+
+                    b.Property<double>("PhosphorusMax")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(30.0)
+                        .HasColumnName("phosphorus_max");
+
+                    b.Property<double>("PhosphorusMin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(15.0)
+                        .HasColumnName("phosphorus_min");
+
+                    b.Property<double>("PotassiumMax")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(50.0)
+                        .HasColumnName("potassium_max");
+
+                    b.Property<double>("PotassiumMin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(30.0)
+                        .HasColumnName("potassium_min");
 
                     b.HasKey("Id")
                         .HasName("p_k_fertility_zones");
