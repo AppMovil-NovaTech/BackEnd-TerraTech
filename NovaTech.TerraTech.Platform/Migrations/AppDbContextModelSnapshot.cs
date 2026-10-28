@@ -289,6 +289,92 @@ namespace NovaTech.TerraTech.Platform.Migrations
                     b.ToTable("devices");
                 });
 
+            modelBuilder.Entity("NovaTech.TerraTech.Platform.Monitoring.Domain.Model.Aggregates.FertilityZone", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Boundary")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("boundary");
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("int")
+                        .HasColumnName("device_id");
+
+                    b.Property<int>("FieldId")
+                        .HasColumnType("int")
+                        .HasColumnName("field_id");
+
+                    b.Property<double>("MoistureMax")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(75.0)
+                        .HasColumnName("moisture_max");
+
+                    b.Property<double>("MoistureMin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(25.0)
+                        .HasColumnName("moisture_min");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("name");
+
+                    b.Property<double>("NitrogenMax")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(40.0)
+                        .HasColumnName("nitrogen_max");
+
+                    b.Property<double>("NitrogenMin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(20.0)
+                        .HasColumnName("nitrogen_min");
+
+                    b.Property<double>("PhosphorusMax")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(30.0)
+                        .HasColumnName("phosphorus_max");
+
+                    b.Property<double>("PhosphorusMin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(15.0)
+                        .HasColumnName("phosphorus_min");
+
+                    b.Property<double>("PotassiumMax")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(50.0)
+                        .HasColumnName("potassium_max");
+
+                    b.Property<double>("PotassiumMin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(30.0)
+                        .HasColumnName("potassium_min");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_fertility_zones");
+
+                    b.HasIndex("DeviceId")
+                        .HasDatabaseName("i_x_fertility_zones_device_id");
+
+                    b.HasIndex("FieldId")
+                        .HasDatabaseName("i_x_fertility_zones_field_id");
+
+                    b.ToTable("fertility_zones", (string)null);
+                });
+
             modelBuilder.Entity("NovaTech.TerraTech.Platform.Monitoring.Domain.Model.Aggregates.Field", b =>
                 {
                     b.Property<int>("Id")
@@ -937,6 +1023,23 @@ namespace NovaTech.TerraTech.Platform.Migrations
 
                     b.Navigation("Status")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("NovaTech.TerraTech.Platform.Monitoring.Domain.Model.Aggregates.FertilityZone", b =>
+                {
+                    b.HasOne("NovaTech.TerraTech.Platform.Monitoring.Domain.Model.Aggregates.Device", null)
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("f_k_fertility_zones_devices_device_id");
+
+                    b.HasOne("NovaTech.TerraTech.Platform.Monitoring.Domain.Model.Aggregates.Field", null)
+                        .WithMany()
+                        .HasForeignKey("FieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("f_k_fertility_zones__field_field_id");
                 });
 
             modelBuilder.Entity("NovaTech.TerraTech.Platform.Monitoring.Domain.Model.Aggregates.Field", b =>
