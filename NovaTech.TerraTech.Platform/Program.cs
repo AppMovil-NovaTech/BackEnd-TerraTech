@@ -161,6 +161,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddHttpClient<IWeatherForecastClient, OpenMeteoWeatherClient>();
 builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
+builder.Services.AddScoped<ISatelliteImageService, SatelliteImageService>();
 builder.Services.AddScoped<IFieldRepository, FieldRepository>();
 builder.Services.AddScoped<IFieldCommandService, FieldCommandService>();
 builder.Services.AddScoped<IFieldQueryService, FieldQueryService>();

@@ -1767,6 +1767,87 @@
         }
       }
     },
+    "/api/v1/fields/{fieldId}/satellite-images/latest": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Gets the latest satellite image for a field",
+        "description": "Retrieves the most recent satellite image URL, vegetation index (NDVI), cloud coverage and bounding coordinates for a field",
+        "operationId": "GetLatestSatelliteImage",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The latest satellite image was successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteImageResource"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No recent satellite image was found for the field"
+          }
+        }
+      }
+    },
+    "/api/v1/fields/{fieldId}/satellite-images": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Gets satellite image for a field by target date",
+        "description": "Retrieves the satellite image closest to the specified target date, including cloud coverage and capture date",
+        "operationId": "GetSatelliteImageByDate",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "targetDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The satellite image was successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteImageResource"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No satellite image was found for the specified date"
+          }
+        }
+      }
+    },
     "/api/v1/fields/{fieldId}/devices": {
       "get": {
         "tags": [
@@ -3803,6 +3884,54 @@
           },
           "combinedRecommendation": {
             "$ref": "#/components/schemas/CombinedRecommendationResource"
+          }
+        }
+      },
+      "SatelliteBoundsResource": {
+        "type": "object",
+        "properties": {
+          "north": {
+            "type": "number",
+            "format": "double"
+          },
+          "south": {
+            "type": "number",
+            "format": "double"
+          },
+          "east": {
+            "type": "number",
+            "format": "double"
+          },
+          "west": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "SatelliteImageResource": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "capturedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "ndviAverage": {
+            "type": "number",
+            "format": "double"
+          },
+          "cloudCoveragePercent": {
+            "type": "number",
+            "format": "double"
+          },
+          "bounds": {
+            "$ref": "#/components/schemas/SatelliteBoundsResource"
           }
         }
       },
