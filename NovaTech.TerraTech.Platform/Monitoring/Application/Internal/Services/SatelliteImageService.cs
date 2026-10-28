@@ -8,8 +8,8 @@ namespace NovaTech.TerraTech.Platform.Monitoring.Application.Internal.Services;
 
 public class SatelliteImageService(
     IFieldRepository fieldRepository,
-    TimeProvider timeProvider,
-    ILogger<SatelliteImageService> logger) : ISatelliteImageService
+    TimeProvider timeProvider) : ISatelliteImageService
+
 {
     public async Task<SatelliteImageRecord?> GetLatestImageAsync(int fieldId, CancellationToken cancellationToken = default)
     {
