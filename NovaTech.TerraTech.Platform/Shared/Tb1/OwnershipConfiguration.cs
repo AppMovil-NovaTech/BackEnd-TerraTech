@@ -26,6 +26,7 @@ public static class OwnershipConfiguration
         b.Entity<Field>().HasQueryFilter(x => db.Set<Profile>().Any(p => p.Id == x.ProfileId.Value));
         b.Entity<Device>().OwnsOne(x => x.FieldId, o => o.HasOne<Field>().WithMany().HasForeignKey(x => x.Value).OnDelete(DeleteBehavior.Restrict));
         b.Entity<Device>().HasQueryFilter(x => db.Set<Field>().Any(f => f.Id == x.FieldId.Value));
+        b.Entity<FertilityZone>().HasQueryFilter(x => db.Set<Field>().Any(f => f.Id == x.FieldId));
         b.Entity<Device>().Property(x => x.SensorCode).HasMaxLength(9);
         b.Entity<Device>().Property(x => x.Name).HasMaxLength(100);
         b.Entity<Device>().HasIndex(x => x.SensorCode).IsUnique();
