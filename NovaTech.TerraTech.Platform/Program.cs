@@ -295,6 +295,7 @@ builder.Services.AddScoped<IDeviceQueryService, DeviceQueryService>();
 // US13 - Fertility zones
 builder.Services.AddScoped<IFertilityZoneRepository, FertilityZoneRepository>();
 builder.Services.AddScoped<IFertilityZoneQueryService, FertilityZoneQueryService>();
+builder.Services.AddScoped<IFertilityZoneCommandService, FertilityZoneCommandService>();
 
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IProfileCommandService, ProfileCommandService>();
