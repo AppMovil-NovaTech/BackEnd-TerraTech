@@ -88,6 +88,7 @@ builder.Services.AddScoped<OwnershipFilter>();
 builder.Services.AddScoped<SensorRegistrationService>();
 builder.Services.AddScoped<ISensorDataRepository, SensorDataRepository>();
 builder.Services.AddScoped<SensorReadingQueryService>();
+builder.Services.AddScoped<SensorReadingCommandService>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<SelfProfileService>();
