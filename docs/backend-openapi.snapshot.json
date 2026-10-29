@@ -1728,6 +1728,126 @@
         }
       }
     },
+    "/api/v1/fields/{fieldId}/weather": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Gets the weather forecast for a field",
+        "description": "Retrieves the current weather forecast, rainfall probability and irrigation recommendation based on the field location and soil conditions",
+        "operationId": "GetFieldWeatherForecast",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The weather forecast was successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldWeatherResource"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The field was not found"
+          },
+          "502": {
+            "description": "The external weather service is unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/fields/{fieldId}/satellite-images/latest": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Gets the latest satellite image for a field",
+        "description": "Retrieves the most recent satellite image URL, vegetation index (NDVI), cloud coverage and bounding coordinates for a field",
+        "operationId": "GetLatestSatelliteImage",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The latest satellite image was successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteImageResource"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No recent satellite image was found for the field"
+          }
+        }
+      }
+    },
+    "/api/v1/fields/{fieldId}/satellite-images": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Gets satellite image for a field by target date",
+        "description": "Retrieves the satellite image closest to the specified target date, including cloud coverage and capture date",
+        "operationId": "GetSatelliteImageByDate",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "targetDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The satellite image was successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteImageResource"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No satellite image was found for the specified date"
+          }
+        }
+      }
+    },
     "/api/v1/fields/{fieldId}/devices": {
       "get": {
         "tags": [
@@ -3712,6 +3832,108 @@
         },
         "additionalProperties": false,
         "description": "Request payload to create a Report"
+      },
+      "CombinedRecommendationResource": {
+        "type": "object",
+        "properties": {
+          "suspensionRecommended": {
+            "type": "boolean"
+          },
+          "estimatedWaterSavingsLiters": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "FieldWeatherResource": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fieldName": {
+            "type": "string"
+          },
+          "forecastTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentTemperatureC": {
+            "type": "number",
+            "format": "double"
+          },
+          "relativeHumidityPercent": {
+            "type": "number",
+            "format": "double"
+          },
+          "windSpeedKmh": {
+            "type": "number",
+            "format": "double"
+          },
+          "precipitationProbability24h": {
+            "type": "number",
+            "format": "double"
+          },
+          "expectedPrecipitationMm": {
+            "type": "number",
+            "format": "double"
+          },
+          "combinedRecommendation": {
+            "$ref": "#/components/schemas/CombinedRecommendationResource"
+          }
+        }
+      },
+      "SatelliteBoundsResource": {
+        "type": "object",
+        "properties": {
+          "north": {
+            "type": "number",
+            "format": "double"
+          },
+          "south": {
+            "type": "number",
+            "format": "double"
+          },
+          "east": {
+            "type": "number",
+            "format": "double"
+          },
+          "west": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "SatelliteImageResource": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "capturedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "ndviAverage": {
+            "type": "number",
+            "format": "double"
+          },
+          "cloudCoveragePercent": {
+            "type": "number",
+            "format": "double"
+          },
+          "bounds": {
+            "$ref": "#/components/schemas/SatelliteBoundsResource"
+          }
+        }
       },
       "DeviceResource": {
         "type": "object",

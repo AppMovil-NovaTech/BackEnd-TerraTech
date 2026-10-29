@@ -1,5 +1,7 @@
 
 using NovaTech.TerraTech.Platform.Shared.Infrastructure.Hosting;
+using NovaTech.TerraTech.Platform.Monitoring.Infrastructure.External.Weather;
+using NovaTech.TerraTech.Platform.Monitoring.Application.Internal.Services;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NovaTech.TerraTech.Platform.NotificationManagement.Application.Services;
 using NovaTech.TerraTech.Platform.NotificationManagement.Domain.Repositories;
@@ -80,6 +82,8 @@ builder.Services.AddControllers(options =>
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<OwnershipFilter>();
 builder.Services.AddScoped<SensorRegistrationService>();
 builder.Services.AddScoped<ISensorDataRepository, SensorDataRepository>();
@@ -281,6 +285,9 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddHttpClient<IWeatherForecastClient, OpenMeteoWeatherClient>();
+builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
+builder.Services.AddScoped<ISatelliteImageService, SatelliteImageService>();
 
 // Monitoring - Fields
 builder.Services.AddScoped<IFieldRepository, FieldRepository>();
