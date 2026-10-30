@@ -8,6 +8,7 @@ using NovaTech.TerraTech.Platform.Iam.Domain.Model.Aggregates;
 using NovaTech.TerraTech.Platform.Iam.Infrastructure.Tokens.Jwt.Configuration;
 
 namespace NovaTech.TerraTech.Platform.Iam.Infrastructure.Tokens.Jwt.Services;
+
 public class TokenService(IOptions<TokenSettings> tokenSettings) : ITokenService
 {
     private readonly TokenSettings _tokenSettings = tokenSettings.Value;
@@ -17,7 +18,7 @@ public class TokenService(IOptions<TokenSettings> tokenSettings) : ITokenService
         var key = Encoding.UTF8.GetBytes(secret);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[] { new Claim("sub", user.Id.ToString()), new Claim(ClaimTypes.Name, user.EmailAddress.Value) }),
+            Subject = new ClaimsIdentity(new[] { new Claim("sub", user.Id.ToString()), new Claim("token_version", user.TokenVersion.ToString()), new Claim(ClaimTypes.Role, "Agricultor"), new Claim(ClaimTypes.Name, user.EmailAddress.Value) }),
             Expires = DateTime.UtcNow.AddHours(8),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
         };

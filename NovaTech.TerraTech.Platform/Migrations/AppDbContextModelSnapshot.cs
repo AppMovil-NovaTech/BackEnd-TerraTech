@@ -234,6 +234,14 @@ namespace NovaTech.TerraTech.Platform.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("created_at");
 
+                    b.Property<bool>("EmailVerificationExempt")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("email_verification_exempt");
+
+                    b.Property<DateTime?>("EmailVerifiedAtUtc")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("email_verified_at_utc");
+
                     b.Property<string>("FullName")
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)")
@@ -244,6 +252,10 @@ namespace NovaTech.TerraTech.Platform.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("password_hash");
 
+                    b.Property<int>("TokenVersion")
+                        .HasColumnType("int")
+                        .HasColumnName("token_version");
+
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("datetime")
                         .HasColumnName("updated_at");
@@ -252,6 +264,42 @@ namespace NovaTech.TerraTech.Platform.Migrations
                         .HasName("p_k_users");
 
                     b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("NovaTech.TerraTech.Platform.Iam.Domain.Model.Entities.AccountEmailToken", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Purpose")
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)")
+                        .HasColumnName("purpose");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("expires_at_utc");
+
+                    b.Property<DateTime>("RequestedAtUtc")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("requested_at_utc");
+
+                    b.Property<string>("TokenHash")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)")
+                        .HasColumnName("token_hash");
+
+                    b.HasKey("UserId", "Purpose")
+                        .HasName("p_k_account_email_tokens");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("i_x_account_email_tokens_token_hash");
+
+                    b.ToTable("account_email_tokens", (string)null);
                 });
 
             modelBuilder.Entity("NovaTech.TerraTech.Platform.Monitoring.Domain.Model.Aggregates.Device", b =>
@@ -904,6 +952,16 @@ namespace NovaTech.TerraTech.Platform.Migrations
 
                     b.Navigation("EmailAddress")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("NovaTech.TerraTech.Platform.Iam.Domain.Model.Entities.AccountEmailToken", b =>
+                {
+                    b.HasOne("NovaTech.TerraTech.Platform.Iam.Domain.Model.Aggregates.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("f_k_account_email_tokens_users_user_id");
                 });
 
             modelBuilder.Entity("NovaTech.TerraTech.Platform.Monitoring.Domain.Model.Aggregates.Device", b =>

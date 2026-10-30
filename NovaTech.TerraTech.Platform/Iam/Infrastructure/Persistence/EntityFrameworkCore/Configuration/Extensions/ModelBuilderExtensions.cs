@@ -1,11 +1,22 @@
 using Microsoft.EntityFrameworkCore;
+using NovaTech.TerraTech.Platform.Iam.Domain.Model.Entities;
 using NovaTech.TerraTech.Platform.Iam.Domain.Model.Aggregates;
 
 namespace NovaTech.TerraTech.Platform.Iam.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
+
 public static class ModelBuilderExtensions
 {
     public static void ApplyIamConfiguration(this ModelBuilder builder)
     {
+        builder.Entity<AccountEmailToken>(token =>
+        {
+            token.ToTable("account_email_tokens");
+            token.HasKey(t => new { t.UserId, t.Purpose });
+            token.Property(t => t.Purpose).HasConversion<string>().HasMaxLength(32);
+            token.Property(t => t.TokenHash).HasMaxLength(64).IsConcurrencyToken();
+            token.HasIndex(t => t.TokenHash).IsUnique();
+            token.HasOne<User>().WithMany().HasForeignKey(t => t.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
         builder.Entity<User>(user =>
         {
             user.ToTable("users");
