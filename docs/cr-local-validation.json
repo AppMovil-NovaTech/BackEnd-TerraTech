@@ -1,0 +1,31 @@
+{
+  "variant": "Debug",
+  "executedAt": "2026-10-31T14:13:33.9324230-05:00",
+  "baseline": {
+    "tests": 96,
+    "failures": 0
+  },
+  "results": {
+    "total": "100",
+    "executed": "100",
+    "passed": "100",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "database": "isolated MySQL localhost:33318",
+  "emailProvider": "in-memory HTTP handler; no real email sent",
+  "published": false,
+  "deployed": false,
+  "commentsInReviewedCode": 0
+}
