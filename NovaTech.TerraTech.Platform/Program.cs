@@ -47,7 +47,7 @@ using NovaTech.TerraTech.Platform.Iam.Application.Internal.QueryServices;
 using NovaTech.TerraTech.Platform.Iam.Application.QueryServices;
 using NovaTech.TerraTech.Platform.Iam.Domain.Repository;
 using NovaTech.TerraTech.Platform.Iam.Infrastructure.Hashing.BCrypt.Services;
-using NovaTech.TerraTech.Platform.Iam.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
+using NovaTech.TerraTech.Platform.Iam.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -290,7 +290,6 @@ builder.Services.AddSwaggerGen(options =>
     options.SchemaFilter<RecordRequiredSchemaFilter>();
 });
 
-// Repositories and application services
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -306,17 +305,14 @@ builder.Services.AddHttpClient<IWeatherForecastClient, OpenMeteoWeatherClient>()
 builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
 builder.Services.AddScoped<ISatelliteImageService, SatelliteImageService>();
 
-// Monitoring - Fields
 builder.Services.AddScoped<IFieldRepository, FieldRepository>();
 builder.Services.AddScoped<IFieldCommandService, FieldCommandService>();
 builder.Services.AddScoped<IFieldQueryService, FieldQueryService>();
 
-// Monitoring - Devices
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
 builder.Services.AddScoped<IDeviceQueryService, DeviceQueryService>();
 
-// US13 - Fertility zones
 builder.Services.AddScoped<IFertilityZoneRepository, FertilityZoneRepository>();
 builder.Services.AddScoped<IFertilityZoneQueryService, FertilityZoneQueryService>();
 builder.Services.AddScoped<IFertilityZoneCommandService, FertilityZoneCommandService>();
@@ -347,6 +343,7 @@ builder.Services.Configure<TokenSettings>(
 );
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAccountEmailTokenRepository, AccountEmailTokenRepository>();
 builder.Services.AddScoped<IUserCommandService, UserCommandService>();
 builder.Services.AddScoped<IUserQueryService, UserQueryService>();
 builder.Services.AddScoped<ITokenService, TokenService>();

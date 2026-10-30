@@ -20,7 +20,6 @@ public class AccountService(IUserRepository users, IHashingService hashing, ITok
             throw new ApiFailure(409, "EMAIL_EXISTS", "Email is already registered.");
         emails.EnsureConfigured();
         var user = new User(email, hashing.HashPassword(password));
-        user.RequireEmailVerification();
         user.SetFullName(fullName);
         await users.AddAsync(user, ct);
         try
@@ -41,7 +40,7 @@ public class AccountService(IUserRepository users, IHashingService hashing, ITok
         var user = await users.FindByEmailAsync(new Email(emailAddress.Trim().ToLowerInvariant()), ct);
         if (user is null || !hashing.VerifyPassword(password, user.PasswordHash))
             throw new ApiFailure(401, "INVALID_CREDENTIALS", "Invalid credentials.");
-        if (!user.EmailVerificationExempt && user.EmailVerifiedAtUtc is null)
+        if (!user.CanSignIn())
             throw new ApiFailure(403, "EMAIL_NOT_VERIFIED", "Please verify your email before signing in.");
         return (user, tokens.GenerateToken(user));
     }

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Launch the Debug API with the ignored local email configuration."""
 import os
 import pathlib
 import subprocess
