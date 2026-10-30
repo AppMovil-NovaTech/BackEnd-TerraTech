@@ -9,12 +9,18 @@ using Xunit;
 public partial class JourneyTests
 {
     [Fact]
-    public async Task SignupReturnsAnImmediatelyUsableEightHourSession()
+    public async Task SignupRequiresVerificationBeforeIssuingAnEightHourSession()
     {
         var client = server.CreateClient();
-        var response = await client.PostAsJsonAsync("/api/v1/authentication/sign-up", Registration(Guid.NewGuid() + "@test.example"));
+        var email = Guid.NewGuid() + "@test.example";
+        var response = await client.PostAsJsonAsync("/api/v1/authentication/sign-up", Registration(email));
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var user = await Json(response);
+        Assert.Equal(System.Text.Json.JsonValueKind.Null, user.GetProperty("token").ValueKind);
+        Assert.True(user.GetProperty("emailVerificationRequired").GetBoolean());
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync("/api/v1/authentication/sign-in", new { emailAddress = email, password = "test-password" })).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await client.PostAsJsonAsync("/api/v1/authentication/email-verifications/confirm", new { token = server.Emails.Verifications[email] })).StatusCode);
+        user = await Json(await client.PostAsJsonAsync("/api/v1/authentication/sign-in", new { emailAddress = email, password = "test-password" }));
         var token = user.GetProperty("token").GetString();
         var jwt = new JsonWebToken(token);
         Assert.InRange((jwt.ValidTo - DateTime.UtcNow).TotalHours, 7.99, 8.01);
@@ -61,7 +67,7 @@ public partial class JourneyTests
     {
         var a = await Account();
         var polygon = Rectangle();
-        var created = await a.client.PostAsJsonAsync("/api/v1/fields", MappedField(a.profileId, [..polygon, polygon[0]]));
+        var created = await a.client.PostAsJsonAsync("/api/v1/fields", MappedField(a.profileId, [.. polygon, polygon[0]]));
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
         var field = await Json(created);
         var id = field.GetProperty("id").GetInt32();
