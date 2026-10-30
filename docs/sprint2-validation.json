@@ -1,6 +1,6 @@
 {
   "variant": "Debug",
-  "executedAt": "2026-10-31T04:15:31.038216+00:00",
+  "executedAt": "2026-10-30T23:28:00.2415790-05:00",
   "baseline": {
     "tests": 87,
     "failures": 0
@@ -26,6 +26,13 @@
   "database": "isolated MySQL, localhost:33318",
   "productionBackupCreated": true,
   "resendTestRequestAccepted": true,
-  "resendInboxReceiptConfirmed": false,
-  "physicalDeviceTested": false
+  "resendInboxReceiptConfirmed": true,
+  "physicalDeviceTested": false,
+  "recoveryInboxReceiptConfirmed": true,
+  "verificationRequestAccepted": true,
+  "verificationInboxReceiptConfirmed": true,
+  "finalRevision": "backend-terratech-git-00016-rer",
+  "deployedSourceCommit": "dfc9191ee20cf3367c6cfb8e81480bc73b571568",
+  "inboxReceiptConfirmed": true,
+  "confirmationSource": "Recipient confirmed both messages in chat"
 }
