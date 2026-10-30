@@ -74,7 +74,7 @@ public partial class JourneyTests
             await server.WithDb(async db => Assert.False(await db.Set<User>().AnyAsync(u => u.EmailAddress.Value == email)));
         }
         finally { server.Emails.Unavailable = false; }
-        foreach (var path in new[] { "verify-email", "reset-password" })
+        foreach (var path in new[] { "verify-email", "reset-password", "account.css", "account.js" })
         {
             var page = await client.GetAsync("/account/" + path);
             Assert.Equal(HttpStatusCode.OK, page.StatusCode);
