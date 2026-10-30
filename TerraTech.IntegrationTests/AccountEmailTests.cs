@@ -140,5 +140,14 @@ public partial class JourneyTests
         var me = await Json(await account.client.GetAsync("/api/v1/users/me"));
         var login = await server.CreateClient().PostAsJsonAsync("/api/v1/authentication/sign-in", new { emailAddress = me.GetProperty("emailAddress").GetString(), password = "test-password" });
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);
+        var email = me.GetProperty("emailAddress").GetString()!;
+        var client = server.CreateClient();
+        Assert.Equal(HttpStatusCode.Accepted, (await client.PostAsJsonAsync("/api/v1/authentication/email-verifications", new { emailAddress = email })).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await client.PostAsJsonAsync("/api/v1/authentication/email-verifications/confirm", new { token = server.Emails.Verifications[email] })).StatusCode);
+        await server.WithDb(async db => {
+            var user = await db.Set<User>().SingleAsync(u => u.Id == account.userId);
+            Assert.True(user.EmailVerificationExempt);
+            Assert.NotNull(user.EmailVerifiedAtUtc);
+        });
     }
 }

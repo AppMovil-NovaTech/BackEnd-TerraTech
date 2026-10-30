@@ -17,7 +17,7 @@ public class AccountEmailService(AppDbContext db, IAccountEmailSender sender, IH
     {
         sender.EnsureConfigured();
         var user = await FindUser(email, ct);
-        if (user is null || user.EmailVerificationExempt || user.EmailVerifiedAtUtc is not null) return;
+        if (user is null || user.EmailVerifiedAtUtc is not null) return;
         await Issue(user, AccountEmailPurpose.Verification, TimeSpan.FromHours(24), ct);
     }
     public async Task RequestPasswordReset(string email, CancellationToken ct)
