@@ -33,3 +33,15 @@ The pre-change backend baseline passed 87 tests. See `docs/sprint2-validation.js
 Tasks: implement and test verification/recovery; preserve historical accounts; connect Android pending-account/recovery flows; integrate the team's recommendations with a Room upgrade; maintain endpoint documentation; validate and deploy the existing Cloud Run service. No unrecorded hours, physical-device tests, interviews or inbox receipt are claimed.
 
 The public deployment needs matching source, successful readiness and the four IAM operations plus the seven Monitoring operations previously missing from Swagger. A private production SQL backup is kept outside Git before the additive migration. Secrets remain outside artifacts and evidence. Publication details are recorded separately after rollout.
+
+## Published result
+
+Final active revision: `backend-terratech-git-00016-rer`, project `terratech-510620`, region `us-east1`, existing HTTPS domain. The four IAM operations and all seven previously absent Monitoring operations are present in public Swagger. Health, both pages and their versioned CSS/JS respond 200; invalid verification tokens return 400. See [public HTTP checks](sprint2-public-verification.json).
+
+The public check found an existing account for the authorized test address, so its password and profile were preserved. The recipient confirmed receipt of the recovery email. The recipient also confirmed receipt of the verification email. Historical accounts may verify voluntarily while keeping their login exemption. User completion of the links is separate from receipt; no existing password was changed by these public checks.
+
+The published-page smoke test caught CSS/JS responses that were unavailable through static middleware. Explicit anonymous resource routes and versioned asset URLs fix deployment behavior and the previous cached 404. The regression test now checks all four page/resource routes.
+
+Validation: 96 backend Debug tests passed, compared with 87 at baseline, including historical-data migration, optional verification, recovery, session revocation, tokens and pages. Android passed 80 unit tests, 28 emulator instrumented tests and lint with zero errors. Both code workflows passed remotely, including the final optional-verification backend run: https://github.com/AppMovil-NovaTech/BackEnd-TerraTech/actions/runs/41168749311 . No physical phone test is claimed.
+
+For a later custom sender, verify auth.lucemz.com in Resend/Cloudflare and update Email__From; no application rewrite is needed. Domain DNS changes were deliberately deferred at the user's request.
