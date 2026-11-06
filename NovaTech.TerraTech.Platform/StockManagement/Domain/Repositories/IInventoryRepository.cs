@@ -5,4 +5,5 @@ namespace NovaTech.TerraTech.Platform.StockManagement.Domain.Repositories;
 public interface IInventoryRepository : IBaseRepository<Inventory>
 {
     Task<Inventory?> FindByProductIdAsync(int productId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Inventory>> FindByFieldIdAsync(int fieldId, CancellationToken cancellationToken = default);
 }
