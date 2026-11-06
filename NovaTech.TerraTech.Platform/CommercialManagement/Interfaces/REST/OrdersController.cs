@@ -20,6 +20,7 @@ public class OrdersController(IOrderService orderService, ILogger<OrdersControll
     [SwaggerOperation(Summary = "Creates a new order", Description = "Creates an order for a product")]
     [SwaggerResponse(201, "Order created", typeof(OrderResource))]
     [SwaggerResponse(400, "Invalid request", typeof(string))]
+    [SwaggerResponse(409, "Insufficient stock", typeof(ProblemDetails))]
     [SwaggerResponse(500, "Unexpected error", typeof(ProblemDetails))]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderResource resource, CancellationToken cancellationToken)
     {
@@ -34,6 +35,8 @@ public class OrdersController(IOrderService orderService, ILogger<OrdersControll
 
             return (CommercialError)result.Error switch
             {
+                CommercialError.InsufficientStock => Conflict("Insufficient stock available for the requested product"),
+                CommercialError.StockConflict => Conflict("Stock changed concurrently; please retry the order"),
                 CommercialError.InvalidProductId or CommercialError.InvalidOrderStatus => BadRequest("Invalid order request"),
                 _ => Problem(title: "Unexpected server error", detail: "An unexpected error occurred while processing your request", statusCode: 500)};
         }
@@ -80,6 +83,7 @@ public class OrdersController(IOrderService orderService, ILogger<OrdersControll
     [HttpPut("{id}/status")]
     [SwaggerOperation(Summary = "Updates order status", Description = "Updates the status of an order")]
     [SwaggerResponse(200, "Order status updated", typeof(OrderResource))]
+    [SwaggerResponse(400, "Invalid status transition", typeof(string))]
     [SwaggerResponse(404, "Order not found", typeof(string))]
     [SwaggerResponse(500, "Unexpected error", typeof(ProblemDetails))]
     public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusResource resource, CancellationToken cancellationToken)
@@ -93,7 +97,13 @@ public class OrdersController(IOrderService orderService, ILogger<OrdersControll
                 return Ok(OrderResourceFromEntityAssembler.ToResourceFromEntity(result.Value));
             }
 
-            return (CommercialError)result.Error == CommercialError.NotFound ? NotFound() : Problem(title: "Unexpected server error", statusCode: 500);
+            return (CommercialError)result.Error switch
+            {
+                CommercialError.NotFound => NotFound(),
+                CommercialError.InvalidOrderStatus => BadRequest("Invalid order status transition"),
+                CommercialError.StockConflict => Conflict("Stock changed concurrently; please retry the status update"),
+                _ => Problem(title: "Unexpected server error", statusCode: 500)
+            };
         }
         catch (ApiFailure)
         {
