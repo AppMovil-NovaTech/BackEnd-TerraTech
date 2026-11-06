@@ -33,7 +33,7 @@ public class OwnershipFilter(AppDbContext db) : IAsyncActionFilter, IAlwaysRunRe
                 continue;
             if (controller == "CommunityProfiles" && !write)
                 continue;
-            var found = key == "fieldId" ? await db.Set<Field>().AnyAsync(x => x.Id == id, ct) : key == "targetProfileId" && !write ? await db.Set<CommunityProfile>().AnyAsync(x => x.ProfileId == id, ct) : await db.Set<Profile>().AnyAsync(x => x.Id == id, ct);
+            var found = key == "fieldId" ? await db.Set<Field>().AnyAsync(x => x.Id == id, ct) : key == "targetProfileId" && !write ? await db.Set<Profile>().IgnoreQueryFilters().AnyAsync(x => x.Id == id, ct) : await db.Set<Profile>().AnyAsync(x => x.Id == id, ct);
             if (!found)
             {
                 c.Result = ApiFailure.Result(404, "RESOURCE_NOT_FOUND", "Resource was not found.");
@@ -45,7 +45,7 @@ public class OwnershipFilter(AppDbContext db) : IAsyncActionFilter, IAlwaysRunRe
         {
             foreach (var resource in c.ActionArguments.Values.Where(x => x != null && x.GetType().Name.EndsWith("Resource")))
             {
-                if (resource!.GetType().GetProperty("TargetProfileId")?.GetValue(resource)is int target && !await db.Set<CommunityProfile>().AnyAsync(x => x.ProfileId == target, ct))
+                if (resource!.GetType().GetProperty("TargetProfileId")?.GetValue(resource)is int target && !await db.Set<Profile>().IgnoreQueryFilters().AnyAsync(x => x.Id == target, ct))
                 {
                     c.Result = ApiFailure.Result(404, "RESOURCE_NOT_FOUND", "Target profile was not found.");
                     return;
@@ -92,7 +92,7 @@ public class OwnershipFilter(AppDbContext db) : IAsyncActionFilter, IAlwaysRunRe
                     "Inventories" => await db.Set<Inventory>().AnyAsync(x => x.Id == id, ct),
                     "Notifications" => await db.Set<Notification>().AnyAsync(x => x.Id == id, ct),
                     "CommunityProfiles" when write => await db.Set<CommunityProfile>().AnyAsync(x => x.Id == id && db.Set<Profile>().Any(p => p.Id == x.ProfileId), ct),
-                    "Comments" when write => await db.Set<Comment>().AnyAsync(x => x.Id == id && db.Set<Profile>().Any(p => p.Id == x.AuthorProfileId), ct),
+                    "Comments" when write => await db.Set<Comment>().AnyAsync(x => x.Id == id && x.UserId == db.CurrentUserId, ct),
                     _ => true
                 };
                 if (!found)
@@ -120,7 +120,7 @@ public class OwnershipFilter(AppDbContext db) : IAsyncActionFilter, IAlwaysRunRe
 
         if (method == "DELETE" && controller == "Profiles" && int.TryParse(route["profileId"]?.ToString(), out var profileId))
         {
-            var dependencies = await db.Set<Field>().IgnoreQueryFilters().AnyAsync(x => x.ProfileId.Value == profileId, ct) || await db.Set<Order>().IgnoreQueryFilters().AnyAsync(x => x.ProfileId == profileId, ct) || await db.Set<Notification>().IgnoreQueryFilters().AnyAsync(x => x.ProfileId == profileId, ct) || await db.Set<CommunityProfile>().IgnoreQueryFilters().AnyAsync(x => x.ProfileId == profileId, ct) || await db.Set<Comment>().IgnoreQueryFilters().AnyAsync(x => x.AuthorProfileId == profileId || x.TargetProfileId == profileId, ct);
+            var dependencies = await db.Set<Field>().IgnoreQueryFilters().AnyAsync(x => x.ProfileId.Value == profileId, ct) || await db.Set<Notification>().IgnoreQueryFilters().AnyAsync(x => x.ProfileId == profileId, ct) || await db.Set<CommunityProfile>().IgnoreQueryFilters().AnyAsync(x => x.ProfileId == profileId, ct) || await db.Set<Comment>().IgnoreQueryFilters().AnyAsync(x => x.TargetProfileId == profileId, ct);
             if (dependencies)
             {
                 c.Result = ApiFailure.Result(409, "DEPENDENT_RESOURCES", "Profile has dependent records.");

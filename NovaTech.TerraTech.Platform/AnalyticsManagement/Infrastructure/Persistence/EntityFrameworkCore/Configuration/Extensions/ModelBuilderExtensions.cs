@@ -10,6 +10,13 @@ public static class ModelBuilderExtensions
         {
             report.HasKey(r => r.Id);
             report.Property(r => r.Id).IsRequired().ValueGeneratedOnAdd();
+            report.Property(r => r.FieldId).HasColumnType("int");
+            report.Property(r => r.CropName).HasMaxLength(150);
+            report.Property(r => r.HistoricalKg).HasColumnType("decimal(18,2)");
+            report.Property(r => r.ProjectedYieldKg).HasColumnType("decimal(18,2)");
+            report.Property(r => r.ConfidenceScore).HasColumnType("double");
+            report.Property(r => r.EnvironmentalFactor).HasColumnType("decimal(18,2)");
+            report.Property(r => r.FactorReason).HasMaxLength(500);
             report.OwnsOne(r => r.DeviceId, device =>
             {
                 device.WithOwner().HasForeignKey("Id");

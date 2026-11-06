@@ -104,6 +104,31 @@ public class ReportsController(IReportCommandService reportCommandService, IRepo
         }
     }
 
+    [HttpGet("fields/{fieldId:int}")]
+    [SwaggerOperation(Summary = "Gets or generates a yield projection report for a field", Description = "Calculates and persists a yield projection report for the specified field", OperationId = "GetFieldProductionReport")]
+    [SwaggerResponse(200, "The field projection report was generated", typeof(ProductionReportResource))]
+    [SwaggerResponse(404, "The field was not found")]
+    public async Task<ActionResult<ProductionReportResource>> GetFieldProductionReport([FromRoute] int fieldId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var report = await reportCommandService.GenerateFieldProjectionAsync(fieldId, cancellationToken);
+            if (report is null)
+                return NotFound();
+            var resource = ProductionReportResourceFromEntityAssembler.ToResourceFromEntity(report);
+            return Ok(resource);
+        }
+        catch (ApiFailure)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while generating projection report for FieldId {FieldId}", fieldId);
+            return Problem(title: localizer["UnexpectedServerError"].Value, detail: localizer["UnexpectedErrorProcessingRequest"].Value, statusCode: 500);
+        }
+    }
+
     [HttpGet("{id:int}")]
     [SwaggerOperation(Summary = "Gets a report by id", Description = "Retrieves a specific report by its identifier", OperationId = "GetReportById")]
     [SwaggerResponse(200, "The report was found", typeof(ReportResource))]

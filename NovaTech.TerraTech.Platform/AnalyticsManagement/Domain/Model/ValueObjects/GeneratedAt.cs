@@ -7,10 +7,10 @@ public sealed record GeneratedAt
             throw new ArgumentException("GeneratedAt cannot be in the far future.", nameof(value));
         if (value < new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero))
             throw new ArgumentException("GeneratedAt is too old.", nameof(value));
-        Value = value.Date;
+        Value = value.ToUniversalTime();
     }
 
     public DateTimeOffset Value { get; }
 
-    public override string ToString() => Value.ToString("yyyy-MM-dd");
+    public override string ToString() => Value.ToString("O");
 }
