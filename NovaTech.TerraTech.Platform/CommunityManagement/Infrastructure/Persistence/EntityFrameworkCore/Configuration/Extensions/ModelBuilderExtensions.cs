@@ -29,7 +29,8 @@ public static class ModelBuilderExtensions
         builder.Entity<Comment>().ToTable("Comments");
         builder.Entity<Comment>().HasKey(c => c.Id);
         builder.Entity<Comment>().Property(c => c.Id).IsRequired().ValueGeneratedOnAdd();
-        builder.Entity<Comment>().Property(c => c.AuthorProfileId).IsRequired();
+        builder.Entity<Comment>().Property(c => c.UserId).IsRequired();
+        builder.Entity<Comment>().Property(c => c.ProductId).IsRequired();
         builder.Entity<Comment>().Property(c => c.TargetProfileId).IsRequired();
         builder.Entity<Comment>().Property(c => c.Content).IsRequired().HasMaxLength(1000);
         builder.Entity<Comment>().Property(c => c.Rating).IsRequired();

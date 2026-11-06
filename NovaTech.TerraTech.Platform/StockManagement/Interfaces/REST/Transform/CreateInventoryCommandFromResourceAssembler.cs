@@ -6,6 +6,14 @@ public static class CreateInventoryCommandFromResourceAssembler
 {
     public static CreateInventoryCommand ToCommandFromResource(CreateInventoryResource resource)
     {
-        return new CreateInventoryCommand(resource.ProductId, resource.StockQuantity, resource.WarehouseLocation);
+        return new CreateInventoryCommand(
+            resource.Name,
+            resource.FieldId,
+            resource.ProfileId,
+            resource.Quantity,
+            resource.UnitType,
+            resource.AverageWeightPerUnitKg,
+            resource.Price,
+            resource.ImageUrl);
     }
 }

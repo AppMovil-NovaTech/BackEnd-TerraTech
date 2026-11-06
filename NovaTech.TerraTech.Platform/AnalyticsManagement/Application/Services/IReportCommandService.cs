@@ -7,4 +7,5 @@ public interface IReportCommandService
 {
     Task<Result<Report>> Handle(CreateReportCommand command, CancellationToken cancellationToken = default);
     Task<Result<Report>> Handle(UpdateReportCommand command, CancellationToken cancellationToken = default);
+    Task<Report?> GenerateFieldProjectionAsync(int fieldId, CancellationToken cancellationToken = default);
 }

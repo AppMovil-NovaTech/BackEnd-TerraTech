@@ -27,4 +27,9 @@ public class ReportRepository(AppDbContext context) : BaseRepository<Report>(con
     {
         return await Context.Set<Report>().FirstOrDefaultAsync(r => r.DeviceId.Value == deviceId.Value && r.GeneratedAt.Value == generatedAt.Value, cancellationToken);
     }
+
+    public async Task<Report?> FindByFieldIdAsync(int fieldId, CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<Report>().OrderByDescending(r => r.Id).FirstOrDefaultAsync(r => r.FieldId == fieldId, cancellationToken);
+    }
 }

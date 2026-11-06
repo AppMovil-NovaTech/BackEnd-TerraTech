@@ -7,6 +7,7 @@ public enum CommercialError
     InvalidOrderStatus,
     InvalidPaymentMethod,
     InsufficientStock,
+    StockConflict,
     OrderValidationFailed,
     SubscriptionNotFound,
     PaymentFailed,

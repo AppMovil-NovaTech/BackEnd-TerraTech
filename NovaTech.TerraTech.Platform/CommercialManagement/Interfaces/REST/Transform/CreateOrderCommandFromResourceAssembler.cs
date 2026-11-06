@@ -6,6 +6,6 @@ public static class CreateOrderCommandFromResourceAssembler
 {
     public static CreateOrderCommand ToCommandFromResource(CreateOrderResource resource)
     {
-        return new CreateOrderCommand(resource.ProfileId, resource.ProductId, resource.Quantity, resource.PaymentMethod, resource.IsSubscription);
+        return new CreateOrderCommand(resource.UserId, resource.ProductId, resource.Quantity, resource.PaymentMethod, resource.IsSubscription);
     }
 }

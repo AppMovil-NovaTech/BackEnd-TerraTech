@@ -10,7 +10,7 @@ public static class ModelBuilderExtensions
         {
             entity.HasKey(o => o.Id);
             entity.Property(o => o.Id).IsRequired().ValueGeneratedOnAdd();
-            entity.Property(o => o.ProfileId).IsRequired();
+            entity.Property(o => o.UserId).IsRequired();
             entity.Property(o => o.ProductId).IsRequired();
             entity.Property(o => o.ProductName).IsRequired().HasMaxLength(255);
             entity.Property(o => o.Quantity).IsRequired();

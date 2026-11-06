@@ -10,7 +10,7 @@ public class OrderRepository(AppDbContext context) : BaseRepository<Order>(conte
 {
     public async Task<IEnumerable<Order>> FindByProfileIdAsync(int profileId, CancellationToken cancellationToken = default)
     {
-        return await Context.Set<Order>().Where(o => o.ProfileId == profileId).OrderByDescending(o => o.CreatedAt).ToListAsync(cancellationToken);
+        return await Context.Set<Order>().Where(o => o.UserId == profileId).OrderByDescending(o => o.CreatedAt).ToListAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<Order>> FindByStatusAsync(OrderStatus status, CancellationToken cancellationToken = default)

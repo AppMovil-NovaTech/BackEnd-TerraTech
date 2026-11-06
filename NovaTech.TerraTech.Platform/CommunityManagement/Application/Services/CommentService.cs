@@ -1,19 +1,49 @@
 using Microsoft.Extensions.Logging;
+using NovaTech.TerraTech.Platform.CommercialManagement.Domain.Repositories;
 using NovaTech.TerraTech.Platform.CommunityManagement.Application.Errors;
 using NovaTech.TerraTech.Platform.CommunityManagement.Domain.Model.Aggregates;
 using NovaTech.TerraTech.Platform.CommunityManagement.Domain.Model.Commands;
 using NovaTech.TerraTech.Platform.CommunityManagement.Domain.Model.Queries;
 using NovaTech.TerraTech.Platform.CommunityManagement.Domain.Repositories;
+using NovaTech.TerraTech.Platform.ProfileManagement.Domain.Repositories;
 using NovaTech.TerraTech.Platform.Shared.Application.Model;
 using NovaTech.TerraTech.Platform.Shared.Domain.Repositories;
+using NovaTech.TerraTech.Platform.StockManagement.Domain.Repositories;
 
 namespace NovaTech.TerraTech.Platform.CommunityManagement.Application.Services;
-public class CommentService(ICommentRepository commentRepository, IUnitOfWork unitOfWork, ILogger<CommentService> logger) : ICommentService
+public class CommentService(
+    ICommentRepository commentRepository,
+    IProductRepository productRepository,
+    IInventoryRepository inventoryRepository,
+    IProfileRepository profileRepository,
+    IUnitOfWork unitOfWork,
+    ILogger<CommentService> logger) : ICommentService
 {
     public async Task<Result<Comment>> Handle(CreateCommentCommand command, CancellationToken cancellationToken = default)
     {
         try
         {
+            if (command.Rating < 1 || command.Rating > 5)
+                return Result<Comment>.Failure(CommunityError.InvalidComment, "Rating must be strictly between 1 and 5");
+
+            var product = await productRepository.FindByIdAsync(command.ProductId, cancellationToken);
+            if (product == null)
+                return Result<Comment>.Failure(CommunityError.InvalidComment, "The specified product was not found");
+
+            var inventory = await inventoryRepository.FindByProductIdAsync(command.ProductId, cancellationToken);
+            if (inventory != null)
+            {
+                if (inventory.OwnerUserId == command.UserId)
+                    return Result<Comment>.Failure(CommunityError.SelfReviewNotAllowed, "Producers cannot review their own products");
+                if (inventory.ProfileId != command.TargetProfileId)
+                    return Result<Comment>.Failure(CommunityError.InvalidComment, "The target profile does not own the reviewed product");
+            }
+
+            // The profile query filter only returns profiles owned by the caller, so a hit here means self-review.
+            var callerOwnedProfile = await profileRepository.FindByIdAsync(command.TargetProfileId, cancellationToken);
+            if (callerOwnedProfile != null)
+                return Result<Comment>.Failure(CommunityError.SelfReviewNotAllowed, "Producers cannot review their own products");
+
             var comment = new Comment(command);
             await commentRepository.AddAsync(comment, cancellationToken);
             await unitOfWork.CompleteAsync(cancellationToken);
@@ -45,6 +75,9 @@ public class CommentService(ICommentRepository commentRepository, IUnitOfWork un
     {
         try
         {
+            if (command.Rating < 1 || command.Rating > 5)
+                return Result<Comment>.Failure(CommunityError.InvalidComment, "Rating must be strictly between 1 and 5");
+
             var comment = await commentRepository.FindByIdAsync(command.Id, cancellationToken);
             if (comment == null)
                 return Result<Comment>.Failure(CommunityError.NotFound, "The comment was not found");
@@ -52,6 +85,11 @@ public class CommentService(ICommentRepository commentRepository, IUnitOfWork un
             commentRepository.Update(comment);
             await unitOfWork.CompleteAsync(cancellationToken);
             return Result<Comment>.Success(comment);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Invalid arguments while updating comment {CommentId}", command.Id);
+            return Result<Comment>.Failure(CommunityError.InvalidComment, "The provided comment data is invalid");
         }
         catch (Exception ex)
         {

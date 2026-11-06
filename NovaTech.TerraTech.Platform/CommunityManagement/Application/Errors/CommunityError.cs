@@ -4,5 +4,6 @@ public enum CommunityError
     DatabaseError,
     NotFound,
     InvalidProfileId,
-    InvalidComment
+    InvalidComment,
+    SelfReviewNotAllowed
 }

@@ -33,7 +33,8 @@ public class CommentsController(ICommentService commentService, ILogger<Comments
 
             return (CommunityError)result.Error switch
             {
-                CommunityError.InvalidComment => BadRequest("Invalid comment request data"),
+                CommunityError.SelfReviewNotAllowed => BadRequest("Producers cannot review their own products"),
+                CommunityError.InvalidComment or CommunityError.InvalidProfileId => BadRequest("Invalid comment request data"),
                 _ => Problem(title: "Unexpected server error", detail: "An unexpected error occurred", statusCode: 500)};
         }
         catch (ApiFailure)
@@ -90,7 +91,12 @@ public class CommentsController(ICommentService commentService, ILogger<Comments
                 return Ok(CommentResourceFromEntityAssembler.ToResourceFromEntity(result.Value));
             }
 
-            return (CommunityError)result.Error == CommunityError.NotFound ? NotFound("Comment not found") : Problem(title: "Unexpected server error", statusCode: 500);
+            return (CommunityError)result.Error switch
+            {
+                CommunityError.NotFound => NotFound("Comment not found"),
+                CommunityError.InvalidComment => BadRequest("Invalid comment request data"),
+                _ => Problem(title: "Unexpected server error", statusCode: 500)
+            };
         }
         catch (ApiFailure)
         {
