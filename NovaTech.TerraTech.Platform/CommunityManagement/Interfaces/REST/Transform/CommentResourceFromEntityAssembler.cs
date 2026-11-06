@@ -6,6 +6,6 @@ public static class CommentResourceFromEntityAssembler
 {
     public static CommentResource ToResourceFromEntity(Comment entity)
     {
-        return new CommentResource(entity.Id, entity.AuthorProfileId, entity.TargetProfileId, entity.Content, entity.Rating, entity.CreatedAt);
+        return new CommentResource(entity.Id, entity.UserId, entity.ProductId, entity.TargetProfileId, entity.Content, entity.Rating, entity.CreatedAt);
     }
 }
