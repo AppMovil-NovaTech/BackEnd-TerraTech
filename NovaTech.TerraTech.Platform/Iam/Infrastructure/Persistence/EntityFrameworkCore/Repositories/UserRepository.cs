@@ -31,4 +31,14 @@ public class UserRepository(AppDbContext context) : BaseRepository<User>(context
         await Context.Set<User>().Where(user => user.Id == userId)
             .ExecuteUpdateAsync(update => update.SetProperty(user => user.PasswordHash, passwordHash)
                 .SetProperty(user => user.TokenVersion, user => user.TokenVersion + 1), cancellationToken);
+
+    public async Task<IEnumerable<User>> FindByIdsAsync(IEnumerable<int> userIds, CancellationToken cancellationToken = default)
+    {
+        var idList = userIds.Distinct().ToList();
+        if (idList.Count == 0)
+            return [];
+        return await Context.Set<User>()
+            .Where(user => idList.Contains(user.Id))
+            .ToListAsync(cancellationToken);
+    }
 }

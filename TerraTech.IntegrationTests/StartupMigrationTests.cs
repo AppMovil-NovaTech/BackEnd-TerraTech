@@ -46,6 +46,6 @@ public partial class JourneyTests
         await using var mysql = new MySqlConnection(connection.ConnectionString);
         await mysql.OpenAsync();
         var count = await new MySqlCommand("SELECT COUNT(*) FROM __EFMigrationsHistory", mysql).ExecuteScalarAsync();
-        Assert.Equal(6, Convert.ToInt32(count));
+        Assert.Equal(11, Convert.ToInt32(count));
     }
 }
