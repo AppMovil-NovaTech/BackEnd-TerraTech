@@ -2,9 +2,9 @@ name: Backend Debug validation
 
 on:
   push:
-    branches: [main, feature/tb1-backend]
+    branches: [develop, main, "feature/**"]
   pull_request:
-    branches: [main]
+    branches: [develop, main]
 
 permissions:
   contents: read

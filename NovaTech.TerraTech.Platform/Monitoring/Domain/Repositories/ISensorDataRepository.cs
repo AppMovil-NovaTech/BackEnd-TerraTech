@@ -8,4 +8,8 @@ public interface ISensorDataRepository
     Task<SensorReading?> FindReading(int deviceId, int readingId, CancellationToken ct);
     Task<SensorReading?> Latest(int deviceId, CancellationToken ct);
     Task<List<SensorReading>> History(int deviceId, DateTime from, DateTime to, CancellationToken ct);
+    Task AddReadingAsync(
+        SensorReading reading,
+        CancellationToken cancellationToken);
+
 }

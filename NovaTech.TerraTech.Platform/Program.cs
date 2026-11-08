@@ -1,3 +1,7 @@
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
+using NovaTech.TerraTech.Platform.Iam.Infrastructure.Messaging;
+using NovaTech.TerraTech.Platform.Iam.Application.Internal.CommandServices;
 
 using NovaTech.TerraTech.Platform.Shared.Infrastructure.Hosting;
 using NovaTech.TerraTech.Platform.Monitoring.Infrastructure.External.Weather;
@@ -43,7 +47,7 @@ using NovaTech.TerraTech.Platform.Iam.Application.Internal.QueryServices;
 using NovaTech.TerraTech.Platform.Iam.Application.QueryServices;
 using NovaTech.TerraTech.Platform.Iam.Domain.Repository;
 using NovaTech.TerraTech.Platform.Iam.Infrastructure.Hashing.BCrypt.Services;
-using NovaTech.TerraTech.Platform.Iam.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
+using NovaTech.TerraTech.Platform.Iam.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -88,7 +92,18 @@ builder.Services.AddScoped<OwnershipFilter>();
 builder.Services.AddScoped<SensorRegistrationService>();
 builder.Services.AddScoped<ISensorDataRepository, SensorDataRepository>();
 builder.Services.AddScoped<SensorReadingQueryService>();
+builder.Services.AddScoped<SensorReadingCommandService>();
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.Configure<AccountEmailOptions>(builder.Configuration.GetSection("Email"));
+builder.Services.AddHttpClient<IAccountEmailSender, ResendAccountEmailSender>(client => client.Timeout = TimeSpan.FromSeconds(15));
+builder.Services.AddScoped<AccountEmailService>();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = 429;
+    options.AddPolicy("account-email", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = builder.Configuration.GetValue("Email:RequestsPerMinute", 20), Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+});
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<SelfProfileService>();
 
@@ -140,9 +155,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 var db = context.HttpContext.RequestServices
                     .GetRequiredService<AppDbContext>();
 
+                var version = context.Principal!.FindFirst("token_version")?.Value;
+                var tokenVersion = version is null ? 0 : int.TryParse(version, out var parsed) ? parsed : -1;
                 if (id <= 0 ||
                     !await db.Set<User>().AnyAsync(
-                        u => u.Id == id,
+                        u => u.Id == id && u.TokenVersion == tokenVersion,
                         context.HttpContext.RequestAborted
                     ))
                 {
@@ -273,7 +290,6 @@ builder.Services.AddSwaggerGen(options =>
     options.SchemaFilter<RecordRequiredSchemaFilter>();
 });
 
-// Repositories and application services
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -289,17 +305,14 @@ builder.Services.AddHttpClient<IWeatherForecastClient, OpenMeteoWeatherClient>()
 builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
 builder.Services.AddScoped<ISatelliteImageService, SatelliteImageService>();
 
-// Monitoring - Fields
 builder.Services.AddScoped<IFieldRepository, FieldRepository>();
 builder.Services.AddScoped<IFieldCommandService, FieldCommandService>();
 builder.Services.AddScoped<IFieldQueryService, FieldQueryService>();
 
-// Monitoring - Devices
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
 builder.Services.AddScoped<IDeviceQueryService, DeviceQueryService>();
 
-// US13 - Fertility zones
 builder.Services.AddScoped<IFertilityZoneRepository, FertilityZoneRepository>();
 builder.Services.AddScoped<IFertilityZoneQueryService, FertilityZoneQueryService>();
 builder.Services.AddScoped<IFertilityZoneCommandService, FertilityZoneCommandService>();
@@ -330,6 +343,7 @@ builder.Services.Configure<TokenSettings>(
 );
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAccountEmailTokenRepository, AccountEmailTokenRepository>();
 builder.Services.AddScoped<IUserCommandService, UserCommandService>();
 builder.Services.AddScoped<IUserQueryService, UserQueryService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -436,7 +450,9 @@ app.UseStatusCodePages(async context =>
 });
 
 app.UseAuthentication();
+app.UseStaticFiles();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapHealthChecks(
     "/health/live",

@@ -12,13 +12,14 @@ using NovaTech.TerraTech.Platform.Shared.Domain.Repositories;
 using NovaTech.TerraTech.Platform.Shared.Resources.Errors;
 
 namespace NovaTech.TerraTech.Platform.Iam.Application.Internal.CommandServices;
+
 public class UserCommandService(IUserRepository userRepository, ITokenService tokenService, IHashingService hashingService, IUnitOfWork unitOfWork, IStringLocalizer<ErrorMessages> localizer) : IUserCommandService
 {
     private readonly IStringLocalizer<ErrorMessages> _localizer = localizer;
     public async Task<Result<(User user, string token)>> Handle(SignInCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.FindByEmailAsync(new Email(command.Email), cancellationToken);
-        if (user == null || !hashingService.VerifyPassword(command.Password, user.PasswordHash))
+        if (user is null || !hashingService.VerifyPassword(command.Password, user.PasswordHash) || !user.CanSignIn())
         {
             return Result<(User user, string token)>.Failure(IamError.InvalidCredentials, _localizer[nameof(IamError.InvalidCredentials)]);
         }

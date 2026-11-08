@@ -41,18 +41,19 @@ public static class OwnershipConfiguration
         b.Entity<SensorReading>().HasIndex(x => new { x.DeviceId, x.RecordedAt }).IsUnique();
         b.Entity<SensorReading>().Property(x => x.Source).HasMaxLength(20);
         b.Entity<SensorReading>().HasQueryFilter(x => db.Set<Device>().Any(d => d.Id == x.DeviceId));
-        b.Entity<Report>().OwnsOne(x => x.DeviceId, o => o.HasOne<Device>().WithMany().HasForeignKey(x => x.Value).OnDelete(DeleteBehavior.Restrict));
-        b.Entity<Report>().HasQueryFilter(x => db.Set<Device>().Any(d => d.Id == x.DeviceId.Value));
-        b.Entity<Order>().HasQueryFilter(x => db.Set<Profile>().Any(p => p.Id == x.ProfileId));
+        b.Entity<Report>().HasOne<Field>().WithMany().HasForeignKey(x => x.FieldId).OnDelete(DeleteBehavior.Restrict);
+        b.Entity<Report>().HasQueryFilter(x => (x.FieldId != null && db.Set<Field>().Any(f => f.Id == x.FieldId)) || db.Set<Device>().Any(d => d.Id == x.DeviceId.Value));
+        b.Entity<Order>().HasQueryFilter(x => x.UserId == db.CurrentUserId);
         b.Entity<Notification>().HasQueryFilter(x => db.Set<Profile>().Any(p => p.Id == x.ProfileId));
         b.Entity<Inventory>().HasQueryFilter(x => x.OwnerUserId == db.CurrentUserId);
         b.Entity<Inventory>().HasOne<User>().WithMany().HasForeignKey(x => x.OwnerUserId).OnDelete(DeleteBehavior.Restrict);
         b.Entity<CommunityProfile>().HasQueryFilter(x => x.VisibilityStatus == CommunityManagement.Domain.Model.ValueObjects.VisibilityStatus.Public || db.Set<Profile>().Any(p => p.Id == x.ProfileId));
-        b.Entity<Comment>().HasQueryFilter(x => db.Set<CommunityProfile>().Any(c => c.ProfileId == x.TargetProfileId));
-        b.Entity<Order>().HasOne<Profile>().WithMany().HasForeignKey(x => x.ProfileId).OnDelete(DeleteBehavior.Restrict);
+        b.Entity<Comment>().HasQueryFilter(x => db.Set<Profile>().IgnoreQueryFilters().Any(p => p.Id == x.TargetProfileId));
+        b.Entity<Order>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
         b.Entity<Notification>().HasOne<Profile>().WithMany().HasForeignKey(x => x.ProfileId).OnDelete(DeleteBehavior.Restrict);
         b.Entity<CommunityProfile>().HasOne<Profile>().WithMany().HasForeignKey(x => x.ProfileId).OnDelete(DeleteBehavior.Restrict);
-        b.Entity<Comment>().HasOne<Profile>().WithMany().HasForeignKey(x => x.AuthorProfileId).OnDelete(DeleteBehavior.Restrict);
+        b.Entity<Comment>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
+        b.Entity<Comment>().HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
         b.Entity<Comment>().HasOne<Profile>().WithMany().HasForeignKey(x => x.TargetProfileId).OnDelete(DeleteBehavior.Restrict);
     }
 }

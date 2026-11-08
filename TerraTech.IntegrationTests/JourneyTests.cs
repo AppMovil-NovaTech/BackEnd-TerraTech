@@ -26,6 +26,7 @@ public partial class JourneyTests(TestServer server) : IClassFixture<TestServer>
         var signUp = await client.PostAsJsonAsync("/api/v1/authentication/sign-up", new { emailAddress = email, password = "test-password", confirmPassword = "test-password", fullName = "Demo Farmer" });
         Assert.Equal(HttpStatusCode.Created, signUp.StatusCode);
         var user = await Json(signUp);
+        Assert.Equal(HttpStatusCode.NoContent, (await client.PostAsJsonAsync("/api/v1/authentication/email-verifications/confirm", new { token = server.Emails.Verifications[email] })).StatusCode);
         var login = await client.PostAsJsonAsync("/api/v1/authentication/sign-in", new { emailAddress = email, password = "test-password" });
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);
         var auth = await Json(login);
@@ -117,7 +118,7 @@ public partial class JourneyTests(TestServer server) : IClassFixture<TestServer>
         var client = server.CreateClient();
         if (kind != "missing")
         {
-            var key = kind == "tampered" ? new string ('x', 48) : TestServer.Secret;
+            var key = kind == "tampered" ? new string('x', 48) : TestServer.Secret;
             var token = new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor { Subject = new ClaimsIdentity([new Claim("sub", kind == "unknown" ? "2147483647" : account.userId.ToString())]), Expires = kind == "expired" ? DateTime.UtcNow.AddHours(-1) : DateTime.UtcNow.AddHours(1), IssuedAt = DateTime.UtcNow.AddHours(-2), NotBefore = DateTime.UtcNow.AddHours(-2), SigningCredentials = new(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256) });
             client.DefaultRequestHeaders.Authorization = new("Bearer", token);
         }
@@ -329,7 +330,7 @@ public partial class JourneyTests(TestServer server) : IClassFixture<TestServer>
         var notification = await Create("notifications", new { profileId = a.profileId, title = "Demo", message = "Test", isAlert = false });
         var community = await Create("community-profiles", new { profileId = a.profileId, nickname = "Farmer", reputationScore = 0, publicBio = "Demo", visibilityStatus = 1 });
         var comment = await Create("comments", new { authorProfileId = a.profileId, targetProfileId = a.profileId, content = "Private", rating = 4 });
-        foreach (var(route, id)in new[]
+        foreach (var (route, id) in new[]
         {
             ("reports", report),
             ("inventories", inventory),

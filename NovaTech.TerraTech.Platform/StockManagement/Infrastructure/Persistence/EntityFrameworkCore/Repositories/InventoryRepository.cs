@@ -9,6 +9,11 @@ public class InventoryRepository(AppDbContext context) : BaseRepository<Inventor
 {
     public async Task<Inventory?> FindByProductIdAsync(int productId, CancellationToken cancellationToken = default)
     {
-        return await Context.Set<Inventory>().FirstOrDefaultAsync(i => i.ProductId == productId, cancellationToken);
+        return await Context.Set<Inventory>().IgnoreQueryFilters().FirstOrDefaultAsync(i => i.ProductId == productId, cancellationToken);
+    }
+
+    public async Task<IEnumerable<Inventory>> FindByFieldIdAsync(int fieldId, CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<Inventory>().Where(i => i.FieldId == fieldId).ToListAsync(cancellationToken);
     }
 }

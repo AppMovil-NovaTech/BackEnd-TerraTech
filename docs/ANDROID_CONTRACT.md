@@ -4,7 +4,7 @@ Base: `/api/v1`. JSON camelCase en los contratos nuevos. JWT en `Authorization: 
 
 | Paso | Endpoint | Resultado |
 |---|---|---|
-| Registro | `POST /authentication/sign-up` | 201 `{id,emailAddress,fullName,token,expiresAt}` |
+| Registro | `POST /authentication/sign-up` | 201 `{id,emailAddress,fullName,token:null,expiresAt:null,emailVerificationRequired:true}` |
 | Login | `POST /authentication/sign-in` | 200 `{id,emailAddress,token,fullName,expiresAt}` |
 | Cuenta | `GET /users/me` | Datos públicos de la cuenta propia |
 | Perfil | `GET /profiles/me` | 200 perfil propio; 404 si aún no se completó |
@@ -54,7 +54,7 @@ El detalle devuelve el mismo recurso que cada elemento de `readings` y que `read
 
 ## Caché Room
 
-Guardar cuenta, perfil, parcelas, dispositivos y lecturas por ID, además de `recordedAt`, `source` y una fecha local de última sincronización. Asociar toda caché al usuario de la sesión y evitar mostrar datos de otra cuenta. Calcular la antigüedad también offline: el `isStale` guardado puede quedar desactualizado. Identificar la vista offline y la fecha de los datos. El servidor no envía confianza de IA, batería ni recomendaciones. La pantalla de detalle offline usa la lectura guardada en Room por `(deviceId, id)`; no necesita conectarse a la ruta de detalle. Para datos locales registrar `downloadedAt` en Android, y recalcular la antigüedad al mostrar la pantalla. A los 30 minutos exactos el dato todavía no se considera antiguo; después sí.
+Guardar cuenta, perfil, parcelas, dispositivos y lecturas por ID, además de `recordedAt`, `source` y una fecha local de última sincronización. Asociar toda caché al usuario de la sesión y evitar mostrar datos de otra cuenta. Calcular la antigüedad también offline: el `isStale` guardado puede quedar desactualizado. Identificar la vista offline y la fecha de los datos. Las recomendaciones locales del móvil se calculan con reglas explícitas; no se presentan como confianza de IA ni batería medida. El pronóstico incluye su recomendación combinada documentada en Swagger. La pantalla de detalle offline usa la lectura guardada en Room por `(deviceId, id)`; no necesita conectarse a la ruta de detalle. Para datos locales registrar `downloadedAt` en Android, y recalcular la antigüedad al mostrar la pantalla. A los 30 minutos exactos el dato todavía no se considera antiguo; después sí.
 
 Un JWT expirado no invalida los datos ya cacheados para lectura local, pero Android debe renovar la sesión antes de volver a consultar la API. No cachear contraseñas; proteger el token por separado.
 
@@ -66,4 +66,12 @@ Sin verificación de correo ni recuperación de contraseña en TB1. Snapshot: `b
 
 ## Actualización de sesión y mapas
 
-El registro emite directamente un JWT de ocho horas. `boundary` es opcional en las parcelas y contiene vértices `{latitude,longitude}`. El servidor calcula área y ubicación cuando se envía un contorno válido. Omitirlo en PUT lo preserva; `[]` lo elimina. Ver [UX_SESSION_MAP.md](UX_SESSION_MAP.md).
+Desde Sprint 2, las cuentas nuevas deben verificar su correo antes de obtener sesión. El login verificado emite un JWT de ocho horas; las cuentas históricas mantienen la exención acordada. `boundary` es opcional en las parcelas y contiene vértices `{latitude,longitude}`. El servidor calcula área y ubicación cuando se envía un contorno válido. Omitirlo en PUT lo preserva; `[]` lo elimina. Ver [UX_SESSION_MAP.md](UX_SESSION_MAP.md).
+
+## Sprint 2: verificación y recuperación
+
+El registro nuevo requiere verificación de correo y no inicia sesión automáticamente. `EMAIL_NOT_VERIFIED` (403) permite reenviar el enlace desde Android. Los endpoints `POST /authentication/email-verifications` y `POST /authentication/password-reset-requests` reciben `{emailAddress}` y responden 202 con un mensaje genérico. `EMAIL_UNAVAILABLE` (503) indica indisponibilidad real; 429 requiere esperar.
+
+Los enlaces HTTPS abren las páginas `/account/verify-email` y `/account/reset-password`, que confirman mediante POST; los tokens no viajan en query strings. Verificación: 24 horas; recuperación: una hora. Son de un solo uso y se guardan como hash. Restablecer la contraseña invalida JWT anteriores. `/profiles/me` incorpora `registeredAt` nullable; no se inventan fechas faltantes.
+
+El remitente temporal de pruebas Resend `onboarding@resend.dev` solo permite enviar al propietario de la cuenta. Cambiar a un remitente verificado para otros usuarios. Las claves quedan exclusivamente en configuración del backend.

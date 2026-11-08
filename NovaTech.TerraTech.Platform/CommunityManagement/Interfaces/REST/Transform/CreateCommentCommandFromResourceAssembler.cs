@@ -6,6 +6,6 @@ public static class CreateCommentCommandFromResourceAssembler
 {
     public static CreateCommentCommand ToCommandFromResource(CreateCommentResource resource)
     {
-        return new CreateCommentCommand(resource.AuthorProfileId, resource.TargetProfileId, resource.Content, resource.Rating);
+        return new CreateCommentCommand(resource.UserId, resource.ProductId, resource.TargetProfileId, resource.Content, resource.Rating);
     }
 }

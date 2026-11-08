@@ -11,4 +11,13 @@ public class SensorDataRepository(AppDbContext db) : ISensorDataRepository
     public Task<SensorReading?> FindReading(int deviceId, int readingId, CancellationToken ct) => db.Set<SensorReading>().SingleOrDefaultAsync(x => x.DeviceId == deviceId && x.Id == readingId, ct);
     public Task<SensorReading?> Latest(int deviceId, CancellationToken ct) => db.Set<SensorReading>().Where(x => x.DeviceId == deviceId).OrderByDescending(x => x.RecordedAt).FirstOrDefaultAsync(ct);
     public Task<List<SensorReading>> History(int deviceId, DateTime from, DateTime to, CancellationToken ct) => db.Set<SensorReading>().Where(x => x.DeviceId == deviceId && x.RecordedAt >= from && x.RecordedAt <= to).OrderBy(x => x.RecordedAt).ToListAsync(ct);
+    public async Task AddReadingAsync(
+        SensorReading reading,
+        CancellationToken cancellationToken)
+    {
+        await db.Set<SensorReading>().AddAsync(
+            reading,
+            cancellationToken
+        );
+    }
 }

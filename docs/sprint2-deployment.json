@@ -1,0 +1,55 @@
+{
+  "metadata": {
+    "labels": {
+      "cloud.googleapis.com/location": "us-east1",
+      "commit-sha": "38045e50d410d11ed9ab1133d3514722e98a011c",
+      "gcb-build-id": "2bce56d8-a797-4c52-bf27-6204aea488ae",
+      "gcb-trigger-id": "30869eb8-be38-4295-9550-7dd07d25346a",
+      "gcb-trigger-region": "europe-west1",
+      "iam-source": "dfc9191ee20cf3367c6cfb8e81480bc73b571568",
+      "managed-by": "gcp-cloud-build-deploy-cloud-run",
+      "run.googleapis.com/startupProbeType": "Default",
+      "serving.knative.dev/configuration": "backend-terratech-git",
+      "serving.knative.dev/configurationGeneration": "13",
+      "serving.knative.dev/route": "backend-terratech-git",
+      "serving.knative.dev/service": "backend-terratech-git",
+      "serving.knative.dev/serviceUid": "6200e028-9aaf-4a58-b4ed-2bfdc463274d"
+    },
+    "name": "backend-terratech-git-00016-rer"
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-10-31T04:31:38.418407Z",
+        "message": "Updating revision scaling succeeded.",
+        "status": "True",
+        "type": "Ready"
+      },
+      {
+        "lastTransitionTime": "2026-10-31T04:31:01.401088Z",
+        "severity": "Info",
+        "status": "True",
+        "type": "Active"
+      },
+      {
+        "lastTransitionTime": "2026-10-31T04:31:01.257344Z",
+        "message": "Containers became healthy in 9.68s.",
+        "status": "True",
+        "type": "ContainerHealthy"
+      },
+      {
+        "lastTransitionTime": "2026-10-31T04:30:49.776522Z",
+        "message": "Container image import completed in 2.41s.",
+        "status": "True",
+        "type": "ContainerReady"
+      },
+      {
+        "lastTransitionTime": "2026-10-31T04:30:51.206871Z",
+        "message": "Provisioning imported containers completed in 1.43s. Checking container health. This will wait for up to 4m for the configured startup probe, including an initial delay of 0s.",
+        "status": "True",
+        "type": "ResourcesAvailable"
+      }
+    ],
+    "imageDigest": "us-east1-docker.pkg.dev/terratech-510620/cloud-run-source-deploy/backend-terratech-git@sha256:a0dd71ad4c2d58b4c1549b7eb13d95e1e370a1dea6e48b106c1912153be8403d"
+  }
+}

@@ -13,6 +13,210 @@
     "version": "v1"
   },
   "paths": {
+    "/api/v1/authentication/email-verifications": {
+      "post": {
+        "tags": [
+          "AccountEmail"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountEmailRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountEmailRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          },
+          "503": {
+            "description": "Service Unavailable"
+          },
+          "400": {
+            "description": "Invalid input. Problem Details."
+          },
+          "404": {
+            "description": "Resource missing or belongs to another account. NO_READINGS distinguishes an empty sensor."
+          },
+          "409": {
+            "description": "Duplicate, occupied sensor, or dependent resources. Problem Details."
+          }
+        },
+        "security": [ ]
+      }
+    },
+    "/api/v1/authentication/email-verifications/confirm": {
+      "post": {
+        "tags": [
+          "AccountEmail"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailResource"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailResource"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailResource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing or belongs to another account. NO_READINGS distinguishes an empty sensor."
+          },
+          "409": {
+            "description": "Duplicate, occupied sensor, or dependent resources. Problem Details."
+          }
+        },
+        "security": [ ]
+      }
+    },
+    "/api/v1/authentication/password-reset-requests": {
+      "post": {
+        "tags": [
+          "AccountEmail"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountEmailRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountEmailRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          },
+          "503": {
+            "description": "Service Unavailable"
+          },
+          "400": {
+            "description": "Invalid input. Problem Details."
+          },
+          "404": {
+            "description": "Resource missing or belongs to another account. NO_READINGS distinguishes an empty sensor."
+          },
+          "409": {
+            "description": "Duplicate, occupied sensor, or dependent resources. Problem Details."
+          }
+        },
+        "security": [ ]
+      }
+    },
+    "/api/v1/authentication/password-resets": {
+      "post": {
+        "tags": [
+          "AccountEmail"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordResource"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordResource"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordResource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing or belongs to another account. NO_READINGS distinguishes an empty sensor."
+          },
+          "409": {
+            "description": "Duplicate, occupied sensor, or dependent resources. Problem Details."
+          }
+        },
+        "security": [ ]
+      }
+    },
     "/api/v1/reports": {
       "post": {
         "tags": [
@@ -305,7 +509,7 @@
             "description": "Duplicate, occupied sensor, or dependent resources. Problem Details."
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/api/v1/authentication/sign-in": {
@@ -353,6 +557,46 @@
               }
             }
           },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Invalid input. Problem Details."
           },
@@ -363,7 +607,7 @@
             "description": "Duplicate, occupied sensor, or dependent resources. Problem Details."
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/api/v1/orders": {
@@ -783,7 +1027,7 @@
             "description": "Resource missing or belongs to another account. NO_READINGS distinguishes an empty sensor."
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/api/v1/products/{id}": {
@@ -821,7 +1065,7 @@
             "description": "Invalid input. Problem Details."
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/api/v1/comments": {
@@ -931,7 +1175,7 @@
             "description": "Resource missing or belongs to another account. NO_READINGS distinguishes an empty sensor."
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/api/v1/comments/{id}": {
@@ -969,7 +1213,7 @@
             "description": "Invalid input. Problem Details."
           }
         },
-        "security": []
+        "security": [ ]
       },
       "put": {
         "tags": [
@@ -1179,7 +1423,7 @@
             "description": "Resource missing or belongs to another account. NO_READINGS distinguishes an empty sensor."
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/api/v1/community-profiles/{profileId}": {
@@ -1217,7 +1461,7 @@
             "description": "Invalid input. Problem Details."
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/api/v1/community-profiles/{id}": {
@@ -1728,126 +1972,6 @@
         }
       }
     },
-    "/api/v1/fields/{fieldId}/weather": {
-      "get": {
-        "tags": [
-          "Monitoring"
-        ],
-        "summary": "Gets the weather forecast for a field",
-        "description": "Retrieves the current weather forecast, rainfall probability and irrigation recommendation based on the field location and soil conditions",
-        "operationId": "GetFieldWeatherForecast",
-        "parameters": [
-          {
-            "name": "fieldId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The weather forecast was successfully retrieved",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FieldWeatherResource"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "The field was not found"
-          },
-          "502": {
-            "description": "The external weather service is unavailable"
-          }
-        }
-      }
-    },
-    "/api/v1/fields/{fieldId}/satellite-images/latest": {
-      "get": {
-        "tags": [
-          "Monitoring"
-        ],
-        "summary": "Gets the latest satellite image for a field",
-        "description": "Retrieves the most recent satellite image URL, vegetation index (NDVI), cloud coverage and bounding coordinates for a field",
-        "operationId": "GetLatestSatelliteImage",
-        "parameters": [
-          {
-            "name": "fieldId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The latest satellite image was successfully retrieved",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SatelliteImageResource"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "No recent satellite image was found for the field"
-          }
-        }
-      }
-    },
-    "/api/v1/fields/{fieldId}/satellite-images": {
-      "get": {
-        "tags": [
-          "Monitoring"
-        ],
-        "summary": "Gets satellite image for a field by target date",
-        "description": "Retrieves the satellite image closest to the specified target date, including cloud coverage and capture date",
-        "operationId": "GetSatelliteImageByDate",
-        "parameters": [
-          {
-            "name": "fieldId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "targetDate",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "format": "date-time"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The satellite image was successfully retrieved",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SatelliteImageResource"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "No satellite image was found for the specified date"
-          }
-        }
-      }
-    },
     "/api/v1/fields/{fieldId}/devices": {
       "get": {
         "tags": [
@@ -1933,6 +2057,326 @@
           },
           "404": {
             "description": "Resource missing or belongs to another account. NO_READINGS distinguishes an empty sensor."
+          }
+        }
+      }
+    },
+    "/api/v1/fields/{fieldId}/fertility-zones": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Gets fertility zones by field id",
+        "description": "Retrieves geographic fertility zones associated with a field",
+        "operationId": "GetFertilityZonesByFieldId",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of fertility zones",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FertilityZoneResource"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FertilityZoneResource"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FertilityZoneResource"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Field not found"
+          },
+          "500": {
+            "description": "Unexpected server error"
+          },
+          "401": {
+            "description": "JWT missing, invalid, expired, or user no longer exists. Problem Details."
+          },
+          "400": {
+            "description": "Invalid input. Problem Details."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Creates a fertility zone",
+        "description": "Creates a geographic fertility zone associated with a field and sensor",
+        "operationId": "CreateFertilityZone",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFertilityZoneResource"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFertilityZoneResource"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFertilityZoneResource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The fertility zone was created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FertilityZoneResource"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FertilityZoneResource"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FertilityZoneResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid fertility zone data"
+          },
+          "404": {
+            "description": "Field or sensor not found"
+          },
+          "500": {
+            "description": "Unexpected server error"
+          },
+          "401": {
+            "description": "JWT missing, invalid, expired, or user no longer exists. Problem Details."
+          },
+          "409": {
+            "description": "Duplicate, occupied sensor, or dependent resources. Problem Details."
+          }
+        }
+      }
+    },
+    "/api/v1/fields/{fieldId}/fertility-zones/{zoneId}/thresholds": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Gets the alert thresholds of a fertility zone",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "zoneId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Thresholds found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FertilityZoneThresholdsResource"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FertilityZoneThresholdsResource"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FertilityZoneThresholdsResource"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fertility zone not found"
+          },
+          "401": {
+            "description": "JWT missing, invalid, expired, or user no longer exists. Problem Details."
+          },
+          "400": {
+            "description": "Invalid input. Problem Details."
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Updates the alert thresholds of a fertility zone",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "zoneId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFertilityZoneThresholdsResource"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFertilityZoneThresholdsResource"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFertilityZoneThresholdsResource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Thresholds updated",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FertilityZoneThresholdsResource"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FertilityZoneThresholdsResource"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FertilityZoneThresholdsResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid threshold range"
+          },
+          "404": {
+            "description": "Fertility zone not found"
+          },
+          "401": {
+            "description": "JWT missing, invalid, expired, or user no longer exists. Problem Details."
+          },
+          "409": {
+            "description": "Duplicate, occupied sensor, or dependent resources. Problem Details."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Resets the alert thresholds of a fertility zone",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "zoneId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Thresholds reset"
+          },
+          "404": {
+            "description": "Fertility zone not found"
+          },
+          "401": {
+            "description": "JWT missing, invalid, expired, or user no longer exists. Problem Details."
+          },
+          "400": {
+            "description": "Invalid input. Problem Details."
+          },
+          "409": {
+            "description": "Duplicate, occupied sensor, or dependent resources. Problem Details."
           }
         }
       }
@@ -2409,6 +2853,229 @@
           },
           "404": {
             "description": "Resource missing or belongs to another account. NO_READINGS distinguishes an empty sensor."
+          }
+        }
+      }
+    },
+    "/api/v1/fields/{fieldId}/weather": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Gets the weather forecast for a field",
+        "description": "Retrieves the current weather forecast, rainfall probability and irrigation recommendation based on the field location and soil conditions",
+        "operationId": "GetFieldWeatherForecast",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The weather forecast was successfully retrieved",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldWeatherResource"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldWeatherResource"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldWeatherResource"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The field was not found"
+          },
+          "502": {
+            "description": "The external weather service is unavailable"
+          },
+          "401": {
+            "description": "JWT missing, invalid, expired, or user no longer exists. Problem Details."
+          },
+          "400": {
+            "description": "Invalid input. Problem Details."
+          }
+        }
+      }
+    },
+    "/api/v1/fields/{fieldId}/satellite-images/latest": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Gets the latest satellite image for a field",
+        "description": "Retrieves the most recent satellite image URL, vegetation index (NDVI), cloud coverage and bounding coordinates for a field",
+        "operationId": "GetLatestSatelliteImage",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The latest satellite image was successfully retrieved",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteImageResource"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteImageResource"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteImageResource"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No recent satellite image was found for the field"
+          },
+          "401": {
+            "description": "JWT missing, invalid, expired, or user no longer exists. Problem Details."
+          },
+          "400": {
+            "description": "Invalid input. Problem Details."
+          }
+        }
+      }
+    },
+    "/api/v1/fields/{fieldId}/satellite-images": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Gets satellite image for a field by target date",
+        "description": "Retrieves the satellite image closest to the specified target date, including cloud coverage and capture date",
+        "operationId": "GetSatelliteImageByDate",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "targetDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The satellite image was successfully retrieved",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteImageResource"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteImageResource"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatelliteImageResource"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No satellite image was found for the specified date"
+          },
+          "401": {
+            "description": "JWT missing, invalid, expired, or user no longer exists. Problem Details."
+          },
+          "400": {
+            "description": "Invalid input. Problem Details."
+          }
+        }
+      }
+    },
+    "/api/v1/devices/{deviceId}/readings/simulate": {
+      "post": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Simulate a sensor reading",
+        "description": "Development only. Saves a simulated reading and generates fertility threshold alerts.",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulateSensorReadingResource"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulateSensorReadingResource"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulateSensorReadingResource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Simulated reading created"
+          },
+          "400": {
+            "description": "Invalid reading"
+          },
+          "404": {
+            "description": "Device not found"
+          },
+          "401": {
+            "description": "JWT missing, invalid, expired, or user no longer exists. Problem Details."
+          },
+          "409": {
+            "description": "Duplicate, occupied sensor, or dependent resources. Problem Details."
           }
         }
       }
@@ -3417,6 +4084,19 @@
   },
   "components": {
     "schemas": {
+      "AccountEmailRequest": {
+        "required": [
+          "emailAddress"
+        ],
+        "type": "object",
+        "properties": {
+          "emailAddress": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "AuthenticatedUserResource": {
         "type": "object",
         "properties": {
@@ -3439,6 +4119,26 @@
           "expiresAt": {
             "type": "string",
             "format": "date-time",
+            "nullable": true
+          },
+          "emailVerificationRequired": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CombinedRecommendationResource": {
+        "type": "object",
+        "properties": {
+          "suspensionRecommended": {
+            "type": "boolean"
+          },
+          "estimatedWaterSavingsLiters": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -3505,6 +4205,19 @@
         },
         "additionalProperties": false,
         "description": "Community profile resource"
+      },
+      "ConfirmEmailResource": {
+        "required": [
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "CreateCommentResource": {
         "required": [
@@ -3596,6 +4309,31 @@
         },
         "additionalProperties": false,
         "description": "Request payload to create a Device"
+      },
+      "CreateFertilityZoneResource": {
+        "required": [
+          "boundary",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "deviceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "boundary": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldVertexResource"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "CreateFieldResource": {
         "required": [
@@ -3833,108 +4571,6 @@
         "additionalProperties": false,
         "description": "Request payload to create a Report"
       },
-      "CombinedRecommendationResource": {
-        "type": "object",
-        "properties": {
-          "suspensionRecommended": {
-            "type": "boolean"
-          },
-          "estimatedWaterSavingsLiters": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      },
-      "FieldWeatherResource": {
-        "type": "object",
-        "properties": {
-          "fieldId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldName": {
-            "type": "string"
-          },
-          "forecastTimestamp": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "currentTemperatureC": {
-            "type": "number",
-            "format": "double"
-          },
-          "relativeHumidityPercent": {
-            "type": "number",
-            "format": "double"
-          },
-          "windSpeedKmh": {
-            "type": "number",
-            "format": "double"
-          },
-          "precipitationProbability24h": {
-            "type": "number",
-            "format": "double"
-          },
-          "expectedPrecipitationMm": {
-            "type": "number",
-            "format": "double"
-          },
-          "combinedRecommendation": {
-            "$ref": "#/components/schemas/CombinedRecommendationResource"
-          }
-        }
-      },
-      "SatelliteBoundsResource": {
-        "type": "object",
-        "properties": {
-          "north": {
-            "type": "number",
-            "format": "double"
-          },
-          "south": {
-            "type": "number",
-            "format": "double"
-          },
-          "east": {
-            "type": "number",
-            "format": "double"
-          },
-          "west": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "SatelliteImageResource": {
-        "type": "object",
-        "properties": {
-          "fieldId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "capturedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "imageUrl": {
-            "type": "string"
-          },
-          "ndviAverage": {
-            "type": "number",
-            "format": "double"
-          },
-          "cloudCoveragePercent": {
-            "type": "number",
-            "format": "double"
-          },
-          "bounds": {
-            "$ref": "#/components/schemas/SatelliteBoundsResource"
-          }
-        }
-      },
       "DeviceResource": {
         "type": "object",
         "properties": {
@@ -3969,6 +4605,78 @@
         },
         "additionalProperties": false,
         "description": "A Device resource"
+      },
+      "FertilityZoneResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fieldId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deviceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "boundary": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldVertexResource"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "A geographic fertility zone resource"
+      },
+      "FertilityZoneThresholdsResource": {
+        "type": "object",
+        "properties": {
+          "zoneId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "moistureMin": {
+            "type": "number",
+            "format": "double"
+          },
+          "moistureMax": {
+            "type": "number",
+            "format": "double"
+          },
+          "nitrogenMin": {
+            "type": "number",
+            "format": "double"
+          },
+          "nitrogenMax": {
+            "type": "number",
+            "format": "double"
+          },
+          "phosphorusMin": {
+            "type": "number",
+            "format": "double"
+          },
+          "phosphorusMax": {
+            "type": "number",
+            "format": "double"
+          },
+          "potassiumMin": {
+            "type": "number",
+            "format": "double"
+          },
+          "potassiumMax": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
       },
       "FieldResource": {
         "type": "object",
@@ -4026,6 +4734,47 @@
           "longitude": {
             "type": "number",
             "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FieldWeatherResource": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fieldName": {
+            "type": "string",
+            "nullable": true
+          },
+          "forecastTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentTemperatureC": {
+            "type": "number",
+            "format": "double"
+          },
+          "relativeHumidityPercent": {
+            "type": "number",
+            "format": "double"
+          },
+          "windSpeedKmh": {
+            "type": "number",
+            "format": "double"
+          },
+          "precipitationProbability24h": {
+            "type": "number",
+            "format": "double"
+          },
+          "expectedPrecipitationMm": {
+            "type": "number",
+            "format": "double"
+          },
+          "combinedRecommendation": {
+            "$ref": "#/components/schemas/CombinedRecommendationResource"
           }
         },
         "additionalProperties": false
@@ -4113,6 +4862,11 @@
           "tempThreshold": {
             "type": "number",
             "format": "double"
+          },
+          "registeredAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -4241,7 +4995,7 @@
             "nullable": true
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "ProductResource": {
         "type": "object",
@@ -4442,6 +5196,80 @@
         "additionalProperties": false,
         "description": "A Report resource"
       },
+      "ResetPasswordResource": {
+        "required": [
+          "confirmPassword",
+          "password",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "confirmPassword": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SatelliteBoundsResource": {
+        "type": "object",
+        "properties": {
+          "north": {
+            "type": "number",
+            "format": "double"
+          },
+          "south": {
+            "type": "number",
+            "format": "double"
+          },
+          "east": {
+            "type": "number",
+            "format": "double"
+          },
+          "west": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SatelliteImageResource": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "capturedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "ndviAverage": {
+            "type": "number",
+            "format": "double"
+          },
+          "cloudCoveragePercent": {
+            "type": "number",
+            "format": "double"
+          },
+          "bounds": {
+            "$ref": "#/components/schemas/SatelliteBoundsResource"
+          }
+        },
+        "additionalProperties": false
+      },
       "SignInResource": {
         "required": [
           "emailAddress",
@@ -4484,6 +5312,47 @@
           "confirmPassword": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SimulateSensorReadingResource": {
+        "required": [
+          "moisturePercent",
+          "nitrogenPpm",
+          "phosphorusPpm",
+          "potassiumPpm",
+          "soilTemperatureC"
+        ],
+        "type": "object",
+        "properties": {
+          "moisturePercent": {
+            "maximum": 100,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "soilTemperatureC": {
+            "type": "number",
+            "format": "double"
+          },
+          "nitrogenPpm": {
+            "maximum": 1.7976931348623157E+308,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "phosphorusPpm": {
+            "maximum": 1.7976931348623157E+308,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "potassiumPpm": {
+            "maximum": 1.7976931348623157E+308,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -4558,6 +5427,70 @@
         },
         "additionalProperties": false,
         "description": "Request payload to update a Device"
+      },
+      "UpdateFertilityZoneThresholdsResource": {
+        "required": [
+          "moistureMax",
+          "moistureMin",
+          "nitrogenMax",
+          "nitrogenMin",
+          "phosphorusMax",
+          "phosphorusMin",
+          "potassiumMax",
+          "potassiumMin"
+        ],
+        "type": "object",
+        "properties": {
+          "moistureMin": {
+            "maximum": 100,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "moistureMax": {
+            "maximum": 100,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "nitrogenMin": {
+            "maximum": 1.7976931348623157E+308,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "nitrogenMax": {
+            "maximum": 1.7976931348623157E+308,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "phosphorusMin": {
+            "maximum": 1.7976931348623157E+308,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "phosphorusMax": {
+            "maximum": 1.7976931348623157E+308,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "potassiumMin": {
+            "maximum": 1.7976931348623157E+308,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "potassiumMax": {
+            "maximum": 1.7976931348623157E+308,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
       },
       "UpdateFieldResource": {
         "required": [
@@ -4763,10 +5696,13 @@
   },
   "security": [
     {
-      "Bearer": []
+      "Bearer": [ ]
     }
   ],
   "tags": [
+    {
+      "name": "AccountEmail"
+    },
     {
       "name": "Analytics"
     },

@@ -2,12 +2,17 @@ using System.Text.Json.Serialization;
 using NovaTech.TerraTech.Platform.Iam.Domain.Model.ValueObjects;
 
 namespace NovaTech.TerraTech.Platform.Iam.Domain.Model.Aggregates;
+
 public partial class User(Email emailAddress, string passwordHash)
 {
     public User() : this(null!, string.Empty)
     {
     }
 
+    public bool EmailVerificationExempt { get; set; }
+    public DateTime? EmailVerifiedAtUtc { get; set; }
+    public int TokenVersion { get; set; }
+    public bool CanSignIn() => EmailVerificationExempt || EmailVerifiedAtUtc is not null;
     public string? FullName { get; private set; }
 
     public void SetFullName(string name) => FullName = name.Trim();

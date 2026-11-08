@@ -5,12 +5,125 @@ using NovaTech.TerraTech.Platform.AnalyticsManagement.Domain.Model.Aggregates;
 using NovaTech.TerraTech.Platform.AnalyticsManagement.Domain.Model.Commands;
 using NovaTech.TerraTech.Platform.AnalyticsManagement.Domain.Model.ValueObjects;
 using NovaTech.TerraTech.Platform.AnalyticsManagement.Domain.Repositories;
+using NovaTech.TerraTech.Platform.Monitoring.Domain.Model.Aggregates;
+using NovaTech.TerraTech.Platform.Monitoring.Domain.Model.ValueObjects;
+using NovaTech.TerraTech.Platform.Monitoring.Domain.Repositories;
 using NovaTech.TerraTech.Platform.Shared.Application.Model;
 using NovaTech.TerraTech.Platform.Shared.Domain.Repositories;
+using NovaTech.TerraTech.Platform.StockManagement.Domain.Repositories;
 
 namespace NovaTech.TerraTech.Platform.AnalyticsManagement.Application.Internal.CommandServices;
-public class ReportCommandService(IReportRepository reportRepository, IUnitOfWork unitOfWork, ILogger<ReportCommandService> logger) : IReportCommandService
+public class ReportCommandService(
+    IReportRepository reportRepository,
+    IFieldRepository fieldRepository,
+    IDeviceRepository deviceRepository,
+    ISensorDataRepository sensorDataRepository,
+    IInventoryRepository inventoryRepository,
+    IUnitOfWork unitOfWork,
+    ILogger<ReportCommandService> logger) : IReportCommandService
 {
+    public async Task<Report?> GenerateFieldProjectionAsync(int fieldId, CancellationToken cancellationToken = default)
+    {
+        var field = await fieldRepository.FindByIdAsync(fieldId, cancellationToken);
+        if (field is null)
+            return null;
+
+        var inventories = (await inventoryRepository.FindByFieldIdAsync(fieldId, cancellationToken)).ToList();
+        var historicalKg = inventories.Sum(i => i.TotalWeightKg);
+        var seasonsCount = inventories.Count;
+        var historicalAverageKg = seasonsCount > 0 ? historicalKg / seasonsCount : 0m;
+
+        var cropName = !string.IsNullOrWhiteSpace(field.CropName)
+            ? field.CropName!
+            : inventories.LastOrDefault()?.Name ?? "Unspecified";
+
+        var devices = (await deviceRepository.FindByFieldIdAsync(new FieldId(fieldId), cancellationToken)).ToList();
+        var latestReadings = new List<SensorReading>();
+        foreach (var device in devices)
+        {
+            var reading = await sensorDataRepository.Latest(device.Id, cancellationToken);
+            if (reading is not null)
+                latestReadings.Add(reading);
+        }
+
+        decimal environmentalFactor;
+        string factorReason;
+        double meanMoisture = 0;
+
+        if (latestReadings.Count > 0)
+        {
+            meanMoisture = latestReadings.Average(r => r.MoisturePercent);
+            var meanNitrogen = latestReadings.Average(r => r.NitrogenPpm);
+            var meanTemp = latestReadings.Average(r => r.SoilTemperatureC);
+
+            if (meanMoisture < 20 || meanMoisture > 85 || meanNitrogen < 10 || meanTemp < 5 || meanTemp > 40)
+            {
+                environmentalFactor = 0.85m;
+                factorReason = "Suboptimal moisture or nutrient levels (-15% expected)";
+            }
+            else if (meanMoisture is >= 30 and <= 75 && meanNitrogen >= 20)
+            {
+                environmentalFactor = 1.05m;
+                factorReason = "Optimal moisture and nutrient levels (+5% expected)";
+            }
+            else
+            {
+                environmentalFactor = 1.00m;
+                factorReason = "Standard moisture and nutrient levels (baseline expected)";
+            }
+        }
+        else
+        {
+            environmentalFactor = 1.00m;
+            factorReason = "Baseline environmental conditions (no active sensor readings)";
+        }
+
+        var projectedYieldKg = Math.Round(historicalAverageKg * environmentalFactor, 2);
+        var confidenceScore = seasonsCount switch
+        {
+            0 => 0.00,
+            1 => 0.85,
+            2 => 0.90,
+            _ => 0.95
+        };
+
+        var primaryDeviceId = devices.FirstOrDefault()?.Id ?? 0;
+        var now = DateTimeOffset.UtcNow;
+
+        var existingReport = await reportRepository.FindByFieldIdAsync(fieldId, cancellationToken);
+        if (existingReport is not null)
+        {
+            existingReport.UpdateProjection(
+                primaryDeviceId,
+                cropName,
+                historicalKg,
+                projectedYieldKg,
+                confidenceScore,
+                environmentalFactor,
+                factorReason,
+                meanMoisture,
+                now);
+            reportRepository.Update(existingReport);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return existingReport;
+        }
+
+        var report = new Report(
+            fieldId,
+            primaryDeviceId,
+            cropName,
+            historicalKg,
+            projectedYieldKg,
+            confidenceScore,
+            environmentalFactor,
+            factorReason,
+            meanMoisture,
+            now);
+
+        await reportRepository.AddAsync(report, cancellationToken);
+        await unitOfWork.CompleteAsync(cancellationToken);
+        return report;
+    }
     public async Task<Result<Report>> Handle(CreateReportCommand command, CancellationToken cancellationToken = default)
     {
         var deviceId = command.DeviceId;

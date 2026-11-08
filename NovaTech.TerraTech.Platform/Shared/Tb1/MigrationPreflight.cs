@@ -20,6 +20,8 @@ public static class MigrationPreflight
 
             if (await Count("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'users'") == 0)
                 return;
+            var ordersUseUserId = await Count("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'orders' AND column_name = 'user_id'") > 0;
+            var commentsUseUserId = await Count("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'comments' AND column_name = 'user_id'") > 0;
             var checks = new Dictionary<string, string>
             {
                 ["profiles without users"] = "SELECT COUNT(*) FROM profiles p LEFT JOIN users u ON u.id=p.user_id WHERE u.id IS NULL",
@@ -29,10 +31,14 @@ public static class MigrationPreflight
                 ["duplicate normalized device MACs"] = "SELECT COUNT(*) FROM (SELECT UPPER(REPLACE(mac_address,'-',':')) FROM devices GROUP BY UPPER(REPLACE(mac_address,'-',':')) HAVING COUNT(*)>1) d",
                 ["device IDs outside sensor code range"] = "SELECT COUNT(*) FROM devices WHERE id >= 2176782336",
                 ["reports without devices"] = "SELECT COUNT(*) FROM reports r LEFT JOIN devices d ON d.id=r.device_id WHERE d.id IS NULL",
-                ["orders without profiles"] = "SELECT COUNT(*) FROM orders o LEFT JOIN profiles p ON p.id=o.profile_id WHERE p.id IS NULL",
+                ["orders without users"] = ordersUseUserId
+                    ? "SELECT COUNT(*) FROM orders o LEFT JOIN users u ON u.id=o.user_id WHERE u.id IS NULL"
+                    : "SELECT COUNT(*) FROM orders o LEFT JOIN profiles p ON p.id=o.profile_id WHERE p.id IS NULL",
                 ["notifications without profiles"] = "SELECT COUNT(*) FROM notifications n LEFT JOIN profiles p ON p.id=n.profile_id WHERE p.id IS NULL",
                 ["community profiles without profiles"] = "SELECT COUNT(*) FROM community_profiles c LEFT JOIN profiles p ON p.id=c.profile_id WHERE p.id IS NULL",
-                ["comments without profiles"] = "SELECT COUNT(*) FROM comments c LEFT JOIN profiles a ON a.id=c.author_profile_id LEFT JOIN profiles t ON t.id=c.target_profile_id WHERE a.id IS NULL OR t.id IS NULL"
+                ["comments without users"] = commentsUseUserId
+                    ? "SELECT COUNT(*) FROM comments c LEFT JOIN users u ON u.id=c.user_id LEFT JOIN profiles t ON t.id=c.target_profile_id WHERE u.id IS NULL OR t.id IS NULL"
+                    : "SELECT COUNT(*) FROM comments c LEFT JOIN profiles a ON a.id=c.author_profile_id LEFT JOIN profiles t ON t.id=c.target_profile_id WHERE a.id IS NULL OR t.id IS NULL"
             };
             var failures = new List<string>();
             foreach (var(label, sql)in checks)

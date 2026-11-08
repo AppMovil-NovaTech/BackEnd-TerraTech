@@ -3,8 +3,8 @@ public sealed record DeviceId
 {
     public DeviceId(int value)
     {
-        if (value <= 0)
-            throw new ArgumentException("DeviceId must be a positive integer.", nameof(value));
+        if (value < 0)
+            throw new ArgumentException("DeviceId cannot be negative.", nameof(value));
         Value = value;
     }
 
