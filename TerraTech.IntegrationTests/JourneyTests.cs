@@ -325,26 +325,24 @@ public partial class JourneyTests(TestServer server) : IClassFixture<TestServer>
 
         var product = await Create("products", new { name = "Demo Product", description = "Test", price = 10, type = "SOIL", imageUrl = "https://example.test/product" });
         var report = await Create("reports", new { deviceId, generatedAt = DateTime.UtcNow, meanValue = 42, variance = 1, standardDeviation = 1, technicalInterpretation = "Manual statistics" });
-        var inventory = await Create("inventories", new { productId = product, stockQuantity = 20, warehouseLocation = "Local" });
+        var inventory = await Create("inventories", new { name = "Demo Harvest", fieldId = a.fieldId, profileId = a.profileId, quantity = 20, unitType = "SACKS", averageWeightPerUnitKg = 50.0m, price = 10.0m, imageUrl = "https://example.test/product" });
         var order = await Create("orders", new { profileId = a.profileId, productId = product, quantity = 1, paymentMethod = 0, isSubscription = false });
         var notification = await Create("notifications", new { profileId = a.profileId, title = "Demo", message = "Test", isAlert = false });
         var community = await Create("community-profiles", new { profileId = a.profileId, nickname = "Farmer", reputationScore = 0, publicBio = "Demo", visibilityStatus = 1 });
-        var comment = await Create("comments", new { authorProfileId = a.profileId, targetProfileId = a.profileId, content = "Private", rating = 4 });
+        var comment = await Create("comments", new { userId = a.userId, productId = product, targetProfileId = b.profileId, content = "Private", rating = 4 });
         foreach (var (route, id) in new[]
         {
             ("reports", report),
             ("inventories", inventory),
             ("orders", order),
-            ("notifications", notification),
-            ("comments", comment)
+            ("notifications", notification)
         }
 
         )
         {
             Assert.Equal(HttpStatusCode.NotFound, (await b.client.GetAsync($"/api/v1/{route}/{id}")).StatusCode);
-            var list = await Json(await b.client.GetAsync(route == "comments" ? $"/api/v1/comments/community-profiles/{b.profileId}/comments" : $"/api/v1/{route}"));
-            if (route != "comments")
-                Assert.DoesNotContain(list.EnumerateArray(), r => r.GetProperty("id").GetInt32() == id);
+            var list = await Json(await b.client.GetAsync($"/api/v1/{route}"));
+            Assert.DoesNotContain(list.EnumerateArray(), r => r.GetProperty("id").GetInt32() == id);
         }
 
         Assert.Equal(HttpStatusCode.NotFound, (await b.client.GetAsync($"/api/v1/community-profiles/{a.profileId}")).StatusCode);
@@ -357,7 +355,7 @@ public partial class JourneyTests(TestServer server) : IClassFixture<TestServer>
         Assert.Equal(HttpStatusCode.NotFound, (await b.client.DeleteAsync($"/api/v1/community-profiles/{community}")).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await b.client.PostAsJsonAsync("/api/v1/reports", new { deviceId, generatedAt = DateTime.UtcNow, meanValue = 42, variance = 1, standardDeviation = 1, technicalInterpretation = "Intrusion" })).StatusCode);
         var publicClient = server.CreateClient();
-        Assert.Equal(HttpStatusCode.NotFound, (await publicClient.GetAsync($"/api/v1/comments/{comment}")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await publicClient.GetAsync($"/api/v1/comments/{comment}")).StatusCode);
         await a.client.PutAsJsonAsync($"/api/v1/community-profiles/{community}", new { nickname = "Farmer", reputationScore = 0, publicBio = "Public Demo", visibilityStatus = 0 });
         Assert.Equal(HttpStatusCode.OK, (await publicClient.GetAsync($"/api/v1/community-profiles/{a.profileId}")).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await publicClient.PostAsJsonAsync("/api/v1/products", new { name = "x", description = "x", price = 1, type = "x", imageUrl = "x" })).StatusCode);
