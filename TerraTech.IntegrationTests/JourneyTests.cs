@@ -326,7 +326,8 @@ public partial class JourneyTests(TestServer server) : IClassFixture<TestServer>
         var product = await Create("products", new { name = "Demo Product", description = "Test", price = 10, type = "SOIL", imageUrl = "https://example.test/product" });
         var report = await Create("reports", new { deviceId, generatedAt = DateTime.UtcNow, meanValue = 42, variance = 1, standardDeviation = 1, technicalInterpretation = "Manual statistics" });
         var inventory = await Create("inventories", new { name = "Demo Harvest", fieldId = a.fieldId, profileId = a.profileId, quantity = 20, unitType = "SACKS", averageWeightPerUnitKg = 50.0m, price = 10.0m, imageUrl = "https://example.test/product" });
-        var order = await Create("orders", new { profileId = a.profileId, productId = product, quantity = 1, paymentMethod = 0, isSubscription = false });
+        var inventoryProductId = (await Json(await a.client.GetAsync($"/api/v1/inventories/{inventory}"))).GetProperty("productId").GetInt32();
+        var order = await Create("orders", new { userId = a.userId, productId = inventoryProductId, quantity = 1, paymentMethod = 0, isSubscription = false });
         var notification = await Create("notifications", new { profileId = a.profileId, title = "Demo", message = "Test", isAlert = false });
         var community = await Create("community-profiles", new { profileId = a.profileId, nickname = "Farmer", reputationScore = 0, publicBio = "Demo", visibilityStatus = 1 });
         var comment = await Create("comments", new { userId = a.userId, productId = product, targetProfileId = b.profileId, content = "Private", rating = 4 });
