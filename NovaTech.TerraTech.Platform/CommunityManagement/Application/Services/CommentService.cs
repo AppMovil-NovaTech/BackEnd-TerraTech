@@ -4,6 +4,7 @@ using NovaTech.TerraTech.Platform.CommunityManagement.Application.Errors;
 using NovaTech.TerraTech.Platform.CommunityManagement.Domain.Model.Aggregates;
 using NovaTech.TerraTech.Platform.CommunityManagement.Domain.Model.Commands;
 using NovaTech.TerraTech.Platform.CommunityManagement.Domain.Model.Queries;
+using NovaTech.TerraTech.Platform.CommunityManagement.Domain.Model.ValueObjects;
 using NovaTech.TerraTech.Platform.CommunityManagement.Domain.Repositories;
 using NovaTech.TerraTech.Platform.ProfileManagement.Domain.Repositories;
 using NovaTech.TerraTech.Platform.Shared.Application.Model;
@@ -11,6 +12,7 @@ using NovaTech.TerraTech.Platform.Shared.Domain.Repositories;
 using NovaTech.TerraTech.Platform.StockManagement.Domain.Repositories;
 
 namespace NovaTech.TerraTech.Platform.CommunityManagement.Application.Services;
+
 public class CommentService(
     ICommentRepository commentRepository,
     IProductRepository productRepository,
@@ -113,6 +115,45 @@ public class CommentService(
         {
             logger.LogError(ex, "Error deleting comment {Id}", command.Id);
             return false;
+        }
+    }
+
+    public async Task<Result<IEnumerable<Comment>>> Handle(GetCommentsByProductIdQuery query, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var product = await productRepository.FindByIdAsync(query.ProductId, cancellationToken);
+            if (product == null)
+                return Result<IEnumerable<Comment>>.Failure(CommunityError.NotFound, "Product not found");
+
+            if (query.Rating.HasValue && (query.Rating.Value < 1 || query.Rating.Value > 5))
+                return Result<IEnumerable<Comment>>.Failure(CommunityError.InvalidComment, "Rating filter must be between 1 and 5");
+
+            var comments = await commentRepository.FindByProductIdAsync(query.ProductId, query.Rating, cancellationToken);
+            return Result<IEnumerable<Comment>>.Success(comments);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error retrieving comments for ProductId {ProductId}", query.ProductId);
+            return Result<IEnumerable<Comment>>.Failure(CommunityError.DatabaseError, "An unexpected error occurred while retrieving comments");
+        }
+    }
+
+    public async Task<Result<ProductRatingSummary>> Handle(GetProductRatingSummaryQuery query, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var product = await productRepository.FindByIdAsync(query.ProductId, cancellationToken);
+            if (product == null)
+                return Result<ProductRatingSummary>.Failure(CommunityError.NotFound, "Product not found");
+
+            var summary = await commentRepository.GetRatingSummaryByProductIdAsync(query.ProductId, cancellationToken);
+            return Result<ProductRatingSummary>.Success(summary);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error retrieving rating summary for ProductId {ProductId}", query.ProductId);
+            return Result<ProductRatingSummary>.Failure(CommunityError.DatabaseError, "An unexpected error occurred while retrieving rating summary");
         }
     }
 }

@@ -11,4 +11,5 @@ public interface IUserRepository : IBaseRepository<User>
     Task ConfirmEmailAsync(int userId, DateTime verifiedAt, CancellationToken cancellationToken);
     Task ResetPasswordAsync(int userId, string passwordHash, CancellationToken cancellationToken);
     Task<bool> ExistsByEmailAsync(Email emailAddress, CancellationToken cancellationToken);
+    Task<IEnumerable<User>> FindByIdsAsync(IEnumerable<int> userIds, CancellationToken cancellationToken = default);
 }
