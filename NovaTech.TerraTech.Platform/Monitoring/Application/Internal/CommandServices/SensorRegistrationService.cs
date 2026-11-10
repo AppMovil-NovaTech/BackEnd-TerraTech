@@ -26,7 +26,7 @@ public class SensorRegistrationService(ISensorDataRepository sensors, IFieldRepo
         {
             await unitOfWork.CompleteAsync(ct);
         }
-        catch (DbUpdateException e)when (e.InnerException is MySql.Data.MySqlClient.MySqlException { Number: 1062 })
+        catch (DbUpdateException e)when (DatabaseErrors.IsUniqueViolation(e))
         {
             throw new ApiFailure(409, "SENSOR_OCCUPIED", "Sensor is already associated.");
         }

@@ -107,15 +107,6 @@ public class FieldCommandService(IFieldRepository fieldRepository, IUnitOfWork u
 
     private static bool IsDuplicateKeyViolation(DbUpdateException exception)
     {
-        for (Exception? current = exception; current is not null; current = current.InnerException)
-        {
-            if (!string.Equals(current.GetType().Name, "MySqlException", StringComparison.Ordinal))
-                continue;
-            var numberProperty = current.GetType().GetProperty("Number");
-            if (numberProperty?.PropertyType == typeof(int) && numberProperty.GetValue(current)is int errorCode && errorCode == 1062)
-                return true;
-        }
-
-        return false;
+        return DatabaseErrors.IsUniqueViolation(exception);
     }
 }

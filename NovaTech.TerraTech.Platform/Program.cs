@@ -203,30 +203,37 @@ builder.Services.AddCors(options =>
     );
 });
 
-builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+var databaseProvider = builder.Configuration.GetValue<string>("Database:Provider") ?? "MySql";
+void ConfigureDatabase(IServiceProvider serviceProvider, DbContextOptionsBuilder options)
 {
-    var connectionStringTemplate =
-        builder.Configuration.GetConnectionString("DefaultConnection");
-
-    if (string.IsNullOrWhiteSpace(connectionStringTemplate))
-        throw new InvalidOperationException(
-            "Database connection string is not set in the configuration."
-        );
-
-    var connectionString =
-        Environment.ExpandEnvironmentVariables(connectionStringTemplate);
-
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     if (string.IsNullOrWhiteSpace(connectionString))
-        throw new InvalidOperationException(
-            "Database connection string is not set in the configuration."
-        );
+        throw new InvalidOperationException("Database connection string is not set in the configuration.");
 
-    options.UseMySQL(connectionString)
-        .UseLoggerFactory(
-            serviceProvider.GetRequiredService<ILoggerFactory>()
-        )
+    connectionString = Environment.ExpandEnvironmentVariables(connectionString);
+    if (databaseProvider.Equals("PostgreSql", StringComparison.OrdinalIgnoreCase))
+        options.UseNpgsql(PostgreSqlConfiguration.ConnectionString(connectionString),
+            postgres => postgres.MigrationsHistoryTable("__EFMigrationsHistory", "terratech"));
+    else
+        options.UseMySQL(connectionString);
+
+    options.UseLoggerFactory(serviceProvider.GetRequiredService<ILoggerFactory>())
         .EnableDetailedErrors();
-});
+}
+
+if (databaseProvider.Equals("PostgreSql", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddDbContext<PostgreSqlAppDbContext>(ConfigureDatabase);
+    builder.Services.AddScoped<AppDbContext>(services => services.GetRequiredService<PostgreSqlAppDbContext>());
+}
+else if (databaseProvider.Equals("MySql", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddDbContext<AppDbContext>(ConfigureDatabase);
+}
+else
+{
+    throw new InvalidOperationException("Database:Provider must be MySql or PostgreSql.");
+}
 
 builder.Services.AddLocalization(options =>
     options.ResourcesPath = "Resources"

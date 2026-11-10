@@ -1,6 +1,6 @@
 # Migraciones y despliegue
 
-El destino de la API es Cloud Run. No se ha publicado esta implementación ni creado la base remota. Ver [Cloud Run](CLOUD_RUN.md) para los comandos, secretos y Job migrador.
+El backend admite PostgreSQL en Supabase mediante Npgsql y migraciones separadas. Ver [Supabase](SUPABASE.md) para el despliegue manual actual. La guía [Cloud Run](CLOUD_RUN.md) conserva las instrucciones del proveedor MySQL anterior.
 
 ## Base existente
 

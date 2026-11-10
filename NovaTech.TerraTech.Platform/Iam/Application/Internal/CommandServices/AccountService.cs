@@ -26,7 +26,7 @@ public class AccountService(IUserRepository users, IHashingService hashing, ITok
         {
             await unitOfWork.CompleteAsync(ct);
         }
-        catch (DbUpdateException e) when (e.InnerException is MySql.Data.MySqlClient.MySqlException { Number: 1062 })
+        catch (DbUpdateException e) when (DatabaseErrors.IsUniqueViolation(e))
         {
             throw new ApiFailure(409, "EMAIL_EXISTS", "Email is already registered.");
         }

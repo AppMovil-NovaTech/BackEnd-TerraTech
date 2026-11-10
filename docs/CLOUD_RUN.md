@@ -2,6 +2,19 @@
 
 El contenedor mantiene .NET 10, EF Core y MySQL. Cloud Run aloja la API; la base debe ser externa y persistente. Cloud SQL MySQL es una opción, no un recurso creado automáticamente por este repositorio. Cambiar a PostgreSQL/AlloyDB requeriría otra implementación del proveedor y migraciones.
 
+
+## PostgreSQL en Supabase
+
+La configuración actual de PostgreSQL se describe en [Supabase](SUPABASE.md).
+Seleccionar `Database__Provider=PostgreSql` y ejecutar el Job migrador antes de
+la API con `Database__MigrateOnStartup=false`. Las migraciones PostgreSQL usan
+un contexto separado y el esquema `terratech`. La configuración MySQL de este
+documento corresponde al proveedor anterior.
+
+El workflow de GitHub Actions fue retirado. La construcción manual se invoca
+con `cloudbuild.manual.yaml`. Los triggers de Cloud Build con configuración
+inline se administran por separado desde GCP.
+
 ## Comportamiento del servicio
 
 - Imagen publicada exclusivamente en **Debug**, para `linux/amd64`, con usuario no root.
@@ -44,8 +57,9 @@ Desde la raíz del backend, completar estos valores no secretos:
 
 ```sh
 export GCP_PROJECT='TU_PROJECT_ID'
-export GCP_REGION='us-central1'
-export ARTIFACT_REPOSITORY='terratech'
+export GCP_REGION='us-east1'
+export API_SERVICE='TU_SERVICIO'
+export ARTIFACT_REPOSITORY='cloud-run-source-deploy'
 export IMAGE_TAG="$(git rev-parse HEAD)"
 export API_IMAGE="$GCP_REGION-docker.pkg.dev/$GCP_PROJECT/$ARTIFACT_REPOSITORY/terratech-api:$IMAGE_TAG"
 export SQL_INSTANCE="$GCP_PROJECT:$GCP_REGION:TU_INSTANCIA_MYSQL"
@@ -53,18 +67,18 @@ export RUNTIME_SA="terratech-api@$GCP_PROJECT.iam.gserviceaccount.com"
 export MIGRATOR_SA="terratech-migrator@$GCP_PROJECT.iam.gserviceaccount.com"
 ```
 
-`cloudbuild.yaml` construye y publica la imagen; **no despliega ni aplica migraciones**. Usa una etiqueta distinta por commit.
+`cloudbuild.manual.yaml` construye y publica la imagen; **no despliega ni aplica migraciones**. Usa una etiqueta distinta por commit.
 
 ```sh
-gcloud builds submit --project "$GCP_PROJECT" --config cloudbuild.yaml \
+gcloud builds submit --project "$GCP_PROJECT" --config cloudbuild.manual.yaml \
   --substitutions="_REGION=$GCP_REGION,_REPOSITORY=$ARTIFACT_REPOSITORY,_TAG=$IMAGE_TAG" .
 ```
 
 Alternativa local: `docker build --platform=linux/amd64 -t terratech-cloud-run:debug .`. No construir solo ARM64 desde un Mac: Cloud Run requiere una imagen compatible con AMD64.
 
-## Alternativa: migrar con un Job separado
+## Migrar con un Job separado
 
-Si usas `Database__MigrateOnStartup=true`, puedes omitir el Job: la API inicializa el esquema. Estos ejemplos de Job usan Cloud SQL. Si se elige otra base, quitar los flags `--set-cloudsql-instances`/`--add-cloudsql-instances` y configurar su conectividad para el servicio **y** el Job.
+Ejecutar las migraciones explícitamente antes de desplegar la API. Estos ejemplos de Job usan Cloud SQL. Para Aiven, quitar los flags `--set-cloudsql-instances`/`--add-cloudsql-instances` y usar una conexión TCP válida para el servicio y el Job.
 
 Se fijan versiones numéricas de secretos (ejemplo `1`); sustituirlas por las versiones válidas. No usar `latest` para una revisión que deba ser reproducible.
 
@@ -87,11 +101,11 @@ Continuar solo si el Job termina correctamente. El preflight conserva los diagn�
 Configuración inicial para TB1: mínimo 0, máximo 1, concurrencia 10, 1 CPU y 512 MiB. Estos límites reducen exposición de costo y conexiones, pero no garantizan una factura de cero. Las revisiones antiguas y nuevas pueden coexistir durante un despliegue.
 
 ```sh
-gcloud run deploy terratech-api --project "$GCP_PROJECT" --region "$GCP_REGION" \
+gcloud run deploy "$API_SERVICE" --project "$GCP_PROJECT" --region "$GCP_REGION" \
   --image "$API_IMAGE" --service-account "$RUNTIME_SA" --execution-environment=gen2 \
   --allow-unauthenticated --port=8080 --cpu=1 --memory=512Mi \
   --min=0 --max=1 --concurrency=10 --timeout=60s \
-  --set-env-vars=ASPNETCORE_ENVIRONMENT=Production,Database__MigrateOnStartup=true \
+  --set-env-vars=ASPNETCORE_ENVIRONMENT=Production,Database__MigrateOnStartup=false \
   --set-secrets=TokenSettings__Secret=terratech-jwt:1,ConnectionStrings__DefaultConnection=terratech-db-runtime:1 \
   --add-cloudsql-instances "$SQL_INSTANCE" \
   --startup-probe='httpGet.path=/health/ready,httpGet.port=8080,timeoutSeconds=5,periodSeconds=10,failureThreshold=12' \
@@ -105,7 +119,7 @@ La prueba de arranque verifica base y esquema; la de liveness evita reiniciar po
 Obtener la URL HTTPS y comprobar:
 
 ```sh
-export API_URL="$(gcloud run services describe terratech-api --project "$GCP_PROJECT" --region "$GCP_REGION" --format='value(status.url)')"
+export API_URL="$(gcloud run services describe "$API_SERVICE" --project "$GCP_PROJECT" --region "$GCP_REGION" --format='value(status.url)')"
 curl --fail "$API_URL/health/live"
 curl --fail "$API_URL/health/ready"
 curl --fail "$API_URL/swagger/v1/swagger.json"

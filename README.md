@@ -89,3 +89,12 @@ Inicialización automática en Cloud Run: **61 pruebas Debug aprobadas**, más c
 Cambios de experiencia Android: [sesión inmediata y contornos persistidos](docs/UX_SESSION_MAP.md).
 
 Validación del refactor de sesión/mapas: **69 pruebas Debug aprobadas**, incluidas las pruebas anteriores de arranque y migración; [resultado](docs/ux-validation.json).
+
+
+## PostgreSQL en Supabase y despliegue manual
+
+Seleccionar `Database__Provider=PostgreSql` y configurar la conexión mediante
+Secret Manager. Las migraciones PostgreSQL usan el esquema `terratech`.
+Consultar [Supabase](docs/SUPABASE.md) para la conexión, migraciones y pruebas.
+La construcción manual usa `cloudbuild.manual.yaml`. El workflow de GitHub
+Actions fue retirado de las ramas principales.

@@ -10,6 +10,12 @@ public static class DatabaseInitializer
 {
     public static async Task InitializeAsync(AppDbContext db, CancellationToken cancellationToken = default)
     {
+        if (db.Database.IsNpgsql())
+        {
+            await db.Database.MigrateAsync(cancellationToken);
+            return;
+        }
+
         var configuration = new MySqlConnectionStringBuilder(db.Database.GetConnectionString());
         var database = configuration.Database;
         if (string.IsNullOrWhiteSpace(database) || database.Length > 64 || database.Contains('\0'))
