@@ -43,7 +43,9 @@ public class PostgreSqlConfigurationTests
     [Fact]
     public void PostgreSqlUsesSeparateMigrationsAndPrivateSchema()
     {
-        using var db = new PostgreSqlDesignTimeFactory().CreateDbContext([]);
+        var options = new DbContextOptionsBuilder<PostgreSqlAppDbContext>()
+            .UseNpgsql("Host=localhost;Database=terratech_design;Username=design");
+        using var db = new PostgreSqlAppDbContext(options.Options);
         Assert.Single(db.Database.GetMigrations());
         var sql = db.Database.GenerateCreateScript();
         Assert.Contains("terratech.users", sql);
