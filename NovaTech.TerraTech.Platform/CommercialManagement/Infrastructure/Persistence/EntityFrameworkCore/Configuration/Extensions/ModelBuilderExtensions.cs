@@ -32,6 +32,14 @@ public static class ModelBuilderExtensions
             entity.Property(p => p.ImageUrl).HasMaxLength(500);
             entity.Property(p => p.CreatedAt);
             entity.Property(p => p.UpdatedAt);
+
+            entity.Property(p => p.InterestThreshold).IsRequired().HasDefaultValue(100);
+            entity.Property(p => p.MonthlyConsultations).IsRequired();
+            entity.Property(p => p.ConsultationMonth).IsRequired();
+            entity.Property(p => p.ConsultationYear).IsRequired();
+            entity.Property(p => p.LastConsultationAt);
+            entity.Property(p => p.HighInterestAlertSent).IsRequired();
+            entity.Property(p => p.InactivityAlertSent).IsRequired();
         });
     }
 }

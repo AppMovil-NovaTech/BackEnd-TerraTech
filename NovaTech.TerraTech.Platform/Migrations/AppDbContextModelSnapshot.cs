@@ -138,6 +138,14 @@ namespace NovaTech.TerraTech.Platform.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
+                    b.Property<int>("ConsultationMonth")
+                        .HasColumnType("int")
+                        .HasColumnName("consultation_month");
+
+                    b.Property<int>("ConsultationYear")
+                        .HasColumnType("int")
+                        .HasColumnName("consultation_year");
+
                     b.Property<DateTimeOffset?>("CreatedAt")
                         .HasColumnType("datetime")
                         .HasColumnName("created_at");
@@ -148,10 +156,32 @@ namespace NovaTech.TerraTech.Platform.Migrations
                         .HasColumnType("varchar(1000)")
                         .HasColumnName("description");
 
+                    b.Property<bool>("HighInterestAlertSent")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("high_interest_alert_sent");
+
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)")
                         .HasColumnName("image_url");
+
+                    b.Property<bool>("InactivityAlertSent")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("inactivity_alert_sent");
+
+                    b.Property<int>("InterestThreshold")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(100)
+                        .HasColumnName("interest_threshold");
+
+                    b.Property<DateTimeOffset?>("LastConsultationAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("last_consultation_at");
+
+                    b.Property<int>("MonthlyConsultations")
+                        .HasColumnType("int")
+                        .HasColumnName("monthly_consultations");
 
                     b.Property<string>("Name")
                         .IsRequired()
