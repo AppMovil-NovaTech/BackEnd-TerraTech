@@ -311,6 +311,8 @@ builder.Services.AddScoped<
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IFavoriteProductRepository, FavoriteProductRepository>();
+builder.Services.AddScoped<IFavoriteProductService, FavoriteProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddHostedService<ProductInactivityBackgroundService>();

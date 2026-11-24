@@ -79,6 +79,40 @@ namespace NovaTech.TerraTech.Platform.Migrations.PostgreSql
                     b.ToTable("reports", "terratech");
                 });
 
+            modelBuilder.Entity("NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Aggregates.FavoriteProduct", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_id");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_favorite_products");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("i_x_favorite_products_product_id");
+
+                    b.HasIndex("UserId", "ProductId")
+                        .IsUnique()
+                        .HasDatabaseName("i_x_favorite_products_user_id_product_id");
+
+                    b.ToTable("favorite_products", "terratech");
+                });
+
             modelBuilder.Entity("NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Aggregates.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -1022,6 +1056,23 @@ namespace NovaTech.TerraTech.Platform.Migrations.PostgreSql
 
                     b.Navigation("Variance")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Aggregates.FavoriteProduct", b =>
+                {
+                    b.HasOne("NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Aggregates.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("f_k_favorite_products__product_product_id");
+
+                    b.HasOne("NovaTech.TerraTech.Platform.Iam.Domain.Model.Aggregates.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("f_k_favorite_products_users_user_id");
                 });
 
             modelBuilder.Entity("NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Aggregates.Order", b =>
