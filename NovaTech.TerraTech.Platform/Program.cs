@@ -37,6 +37,7 @@ using NovaTech.TerraTech.Platform.StockManagement.Application.Services;
 using NovaTech.TerraTech.Platform.StockManagement.Domain.Repositories;
 using NovaTech.TerraTech.Platform.StockManagement.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using NovaTech.TerraTech.Platform.CommercialManagement.Application.Services;
+using NovaTech.TerraTech.Platform.CommercialManagement.Infrastructure.BackgroundJobs;
 using NovaTech.TerraTech.Platform.CommercialManagement.Domain.Repositories;
 using NovaTech.TerraTech.Platform.CommercialManagement.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using NovaTech.TerraTech.Platform.Shared.Interfaces.Rest.ProblemDetails;
@@ -310,8 +311,13 @@ builder.Services.AddScoped<
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IFavoriteProductRepository, FavoriteProductRepository>();
+builder.Services.AddScoped<IFavoriteProductService, FavoriteProductService>();
+builder.Services.AddScoped<IProductPreferenceRepository, ProductPreferenceRepository>();
+builder.Services.AddScoped<IProductPreferenceService, ProductPreferenceService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddHostedService<ProductInactivityBackgroundService>();
 builder.Services.AddHttpClient<IWeatherForecastClient, OpenMeteoWeatherClient>();
 builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
 builder.Services.AddScoped<ISatelliteImageService, SatelliteImageService>();

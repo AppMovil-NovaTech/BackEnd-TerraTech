@@ -73,6 +73,38 @@ namespace NovaTech.TerraTech.Platform.Migrations
                     b.ToTable("reports");
                 });
 
+            modelBuilder.Entity("NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Aggregates.FavoriteProduct", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int")
+                        .HasColumnName("product_id");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_favorite_products");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("i_x_favorite_products_product_id");
+
+                    b.HasIndex("UserId", "ProductId")
+                        .IsUnique()
+                        .HasDatabaseName("i_x_favorite_products_user_id_product_id");
+
+                    b.ToTable("favorite_products");
+                });
+
             modelBuilder.Entity("NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Aggregates.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -138,6 +170,14 @@ namespace NovaTech.TerraTech.Platform.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
+                    b.Property<int>("ConsultationMonth")
+                        .HasColumnType("int")
+                        .HasColumnName("consultation_month");
+
+                    b.Property<int>("ConsultationYear")
+                        .HasColumnType("int")
+                        .HasColumnName("consultation_year");
+
                     b.Property<DateTimeOffset?>("CreatedAt")
                         .HasColumnType("datetime")
                         .HasColumnName("created_at");
@@ -148,10 +188,32 @@ namespace NovaTech.TerraTech.Platform.Migrations
                         .HasColumnType("varchar(1000)")
                         .HasColumnName("description");
 
+                    b.Property<bool>("HighInterestAlertSent")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("high_interest_alert_sent");
+
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)")
                         .HasColumnName("image_url");
+
+                    b.Property<bool>("InactivityAlertSent")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("inactivity_alert_sent");
+
+                    b.Property<int>("InterestThreshold")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(100)
+                        .HasColumnName("interest_threshold");
+
+                    b.Property<DateTimeOffset?>("LastConsultationAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("last_consultation_at");
+
+                    b.Property<int>("MonthlyConsultations")
+                        .HasColumnType("int")
+                        .HasColumnName("monthly_consultations");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -177,6 +239,40 @@ namespace NovaTech.TerraTech.Platform.Migrations
                         .HasName("p_k_products");
 
                     b.ToTable("products");
+                });
+
+            modelBuilder.Entity("NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Aggregates.ProductPreference", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("category");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_product_preferences");
+
+                    b.HasIndex("Category")
+                        .HasDatabaseName("i_x_product_preferences_category");
+
+                    b.HasIndex("UserId", "Category")
+                        .IsUnique()
+                        .HasDatabaseName("i_x_product_preferences_user_id_category");
+
+                    b.ToTable("product_preferences");
                 });
 
             modelBuilder.Entity("NovaTech.TerraTech.Platform.CommunityManagement.Domain.Model.Aggregates.Comment", b =>
@@ -962,6 +1058,23 @@ namespace NovaTech.TerraTech.Platform.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Aggregates.FavoriteProduct", b =>
+                {
+                    b.HasOne("NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Aggregates.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("f_k_favorite_products__product_product_id");
+
+                    b.HasOne("NovaTech.TerraTech.Platform.Iam.Domain.Model.Aggregates.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("f_k_favorite_products_users_user_id");
+                });
+
             modelBuilder.Entity("NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Aggregates.Order", b =>
                 {
                     b.HasOne("NovaTech.TerraTech.Platform.Iam.Domain.Model.Aggregates.User", null)
@@ -970,6 +1083,16 @@ namespace NovaTech.TerraTech.Platform.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("f_k_orders_users_user_id");
+                });
+
+            modelBuilder.Entity("NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Aggregates.ProductPreference", b =>
+                {
+                    b.HasOne("NovaTech.TerraTech.Platform.Iam.Domain.Model.Aggregates.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("f_k_product_preferences_users_user_id");
                 });
 
             modelBuilder.Entity("NovaTech.TerraTech.Platform.CommunityManagement.Domain.Model.Aggregates.Comment", b =>

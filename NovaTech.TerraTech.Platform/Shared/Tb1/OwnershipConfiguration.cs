@@ -45,6 +45,8 @@ public static class OwnershipConfiguration
         b.Entity<Report>().HasOne<Field>().WithMany().HasForeignKey(x => x.FieldId).OnDelete(DeleteBehavior.Restrict);
         b.Entity<Report>().HasQueryFilter(x => (x.FieldId != null && db.Set<Field>().Any(f => f.Id == x.FieldId)) || db.Set<Device>().Any(d => d.Id == x.DeviceId.Value));
         b.Entity<Order>().HasQueryFilter(x => x.UserId == db.CurrentUserId);
+        b.Entity<FavoriteProduct>().HasQueryFilter(x => x.UserId == db.CurrentUserId);
+        b.Entity<ProductPreference>().HasQueryFilter(x => x.UserId == db.CurrentUserId);
         b.Entity<Notification>().HasQueryFilter(x => db.Set<Profile>().Any(p => p.Id == x.ProfileId));
         b.Entity<Inventory>().HasQueryFilter(x => x.OwnerUserId == db.CurrentUserId);
         b.Entity<Inventory>().HasOne<User>().WithMany().HasForeignKey(x => x.OwnerUserId).OnDelete(DeleteBehavior.Restrict);

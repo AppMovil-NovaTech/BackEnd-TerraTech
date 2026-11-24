@@ -15,6 +15,7 @@ public class OrderService(
     IOrderRepository orderRepository,
     IProductRepository productRepository,
     IInventoryRepository inventoryRepository,
+    IFavoriteProductService favoriteService,
     IUnitOfWork unitOfWork,
     ILogger<OrderService> logger) : IOrderService
 {
@@ -33,8 +34,11 @@ public class OrderService(
             if (inventory == null || inventory.StockQuantity < command.Quantity)
                 return Result<Order>.Failure(CommercialError.InsufficientStock, "Insufficient stock available for the requested product");
 
+            var previousQuantity = inventory.StockQuantity;
             inventory.DiscountStock(command.Quantity);
             inventoryRepository.Update(inventory);
+            await favoriteService.QueueAvailabilityChangeAsync(
+                inventory.ProductId, product.Name, previousQuantity, inventory.StockQuantity, cancellationToken);
 
             var order = new Order(command, product);
             await orderRepository.AddAsync(order, cancellationToken);
@@ -98,8 +102,11 @@ public class OrderService(
                 var inventory = await inventoryRepository.FindByProductIdAsync(order.ProductId, cancellationToken);
                 if (inventory != null)
                 {
+                    var previousQuantity = inventory.StockQuantity;
                     inventory.RestoreStock(order.Quantity);
                     inventoryRepository.Update(inventory);
+                    await favoriteService.QueueAvailabilityChangeAsync(
+                        inventory.ProductId, order.ProductName, previousQuantity, inventory.StockQuantity, cancellationToken);
                 }
             }
 
