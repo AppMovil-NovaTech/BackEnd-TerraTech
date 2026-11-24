@@ -9,9 +9,10 @@ using NovaTech.TerraTech.Platform.CommercialManagement.Domain.Model.Queries;
 using NovaTech.TerraTech.Platform.CommercialManagement.Domain.Repositories;
 using NovaTech.TerraTech.Platform.Shared.Application.Model;
 using NovaTech.TerraTech.Platform.Shared.Domain.Repositories;
+using NovaTech.TerraTech.Platform.Shared.Tb1;
 
 namespace NovaTech.TerraTech.Platform.CommercialManagement.Application.Services;
-public class ProductService(IProductRepository productRepository, IInventoryRepository inventoryRepository, INotificationService notificationService, IUnitOfWork unitOfWork, IFavoriteProductService favoriteService, ILogger<ProductService> logger) : IProductService
+public class ProductService(IProductRepository productRepository, IInventoryRepository inventoryRepository, INotificationService notificationService, IUnitOfWork unitOfWork, IFavoriteProductService favoriteService, IProductPreferenceService preferenceService, IHttpContextAccessor httpContextAccessor, ILogger<ProductService> logger) : IProductService
 {
     public async Task<Result<Product>> Handle(CreateProductCommand command, CancellationToken cancellationToken = default)
     {
@@ -19,6 +20,9 @@ public class ProductService(IProductRepository productRepository, IInventoryRepo
         {
             var product = new Product(command);
             await productRepository.AddAsync(product, cancellationToken);
+            var publishingUserId = httpContextAccessor.HttpContext?.User.UserId() ?? 0;
+            await preferenceService.QueueNewProductAsync(
+                product.Name, product.Type, publishingUserId > 0 ? publishingUserId : null, cancellationToken);
             await unitOfWork.CompleteAsync(cancellationToken);
             return Result<Product>.Success(product);
         }
