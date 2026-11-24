@@ -13,6 +13,7 @@ namespace NovaTech.TerraTech.Platform.StockManagement.Application.Services;
 public class StockService(
     IInventoryRepository inventoryRepository,
     IProductService productService,
+    IFavoriteProductService favoriteService,
     IUnitOfWork unitOfWork,
     ILogger<StockService> logger) : IStockService
 {
@@ -75,8 +76,11 @@ public class StockService(
                 return Result<Inventory>.Failure(StockError.NotFound, "The inventory item was not found");
             if (command.StockQuantity < 0)
                 return Result<Inventory>.Failure(StockError.InvalidStockQuantity, "Stock quantity cannot be negative");
+            var previousQuantity = inventory.StockQuantity;
             inventory.UpdateStock(command.StockQuantity);
             inventoryRepository.Update(inventory);
+            await favoriteService.QueueAvailabilityChangeAsync(
+                inventory.ProductId, inventory.Name, previousQuantity, inventory.StockQuantity, cancellationToken);
             await unitOfWork.CompleteAsync(cancellationToken);
             return Result<Inventory>.Success(inventory);
         }

@@ -15,4 +15,5 @@ public interface IProductService
     Task<Result<Product>> Handle(GetProductInterestQuery query, CancellationToken cancellationToken = default);
 
     Task<Result<Product>> Handle(CheckProductInactivityCommand command, CancellationToken cancellationToken = default);
+    Task<Result<Product>> Handle(UpdateProductPriceCommand command, CancellationToken cancellationToken = default);
 }

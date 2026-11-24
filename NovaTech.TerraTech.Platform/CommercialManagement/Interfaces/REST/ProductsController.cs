@@ -138,4 +138,17 @@ public class ProductsController(IProductService productService, ILogger<Products
             return NotFound();
         return Problem(title: "Could not check product inactivity", statusCode: 500);
     }
+    [Authorize]
+    [HttpPut("{id:int}/price")]
+    [SwaggerOperation(Summary = "Updates a product's published price and notifies its followers (US32)")]
+    public async Task<IActionResult> UpdatePublishedPrice(int id, [FromBody] UpdateProductPriceResource resource, CancellationToken ct)
+    {
+        if (resource is null || resource.Price <= 0m) return BadRequest();
+        var result = await productService.Handle(new UpdateProductPriceCommand(id, User.UserId(), resource.Price), ct);
+        if (result.IsSuccess && result.Value is not null)
+            return Ok(ProductResourceFromEntityAssembler.ToResourceFromEntity(result.Value));
+        if (result.Error is CommercialError.NotFound) return NotFound();
+        if (result.Error is CommercialError.InvalidProductId) return BadRequest();
+        return Problem(title: "Could not update published price", statusCode: 500);
+    }
 }

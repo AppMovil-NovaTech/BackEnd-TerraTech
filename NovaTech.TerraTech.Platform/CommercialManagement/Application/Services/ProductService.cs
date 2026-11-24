@@ -11,7 +11,7 @@ using NovaTech.TerraTech.Platform.Shared.Application.Model;
 using NovaTech.TerraTech.Platform.Shared.Domain.Repositories;
 
 namespace NovaTech.TerraTech.Platform.CommercialManagement.Application.Services;
-public class ProductService(IProductRepository productRepository, IInventoryRepository inventoryRepository, INotificationService notificationService, IUnitOfWork unitOfWork, ILogger<ProductService> logger) : IProductService
+public class ProductService(IProductRepository productRepository, IInventoryRepository inventoryRepository, INotificationService notificationService, IUnitOfWork unitOfWork, IFavoriteProductService favoriteService, ILogger<ProductService> logger) : IProductService
 {
     public async Task<Result<Product>> Handle(CreateProductCommand command, CancellationToken cancellationToken = default)
     {
@@ -176,6 +176,35 @@ public class ProductService(IProductRepository productRepository, IInventoryRepo
         {
             logger.LogError(ex, "Error checking inactivity for product {Id}", command.ProductId);
             return Result<Product>.Failure(CommercialError.UnexpectedError, "Could not check product inactivity");
+        }
+    }
+    public async Task<Result<Product>> Handle(UpdateProductPriceCommand command, CancellationToken cancellationToken = default)
+    {
+        if (command.ProductId <= 0 || command.UserId <= 0 || command.Price <= 0)
+            return Result<Product>.Failure(CommercialError.InvalidProductId, "Invalid product or price");
+        try
+        {
+            var inventory = await inventoryRepository.FindByProductIdAsync(command.ProductId, cancellationToken);
+            if (inventory is null || inventory.OwnerUserId != command.UserId)
+                return Result<Product>.Failure(CommercialError.NotFound, "Product inventory not found for the current user");
+            var product = await productRepository.FindByIdAsync(command.ProductId, cancellationToken);
+            if (product is null)
+                return Result<Product>.Failure(CommercialError.NotFound, "Product not found");
+            var previousPrice = product.Price;
+            if (previousPrice == command.Price && inventory.Price == command.Price)
+                return Result<Product>.Success(product);
+            product.UpdatePrice(command.Price);
+            inventory.UpdatePrice(command.Price);
+            productRepository.Update(product);
+            inventoryRepository.Update(inventory);
+            await favoriteService.QueuePriceChangeAsync(product.Id, product.Name, previousPrice, command.Price, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Product>.Success(product);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed updating price for product {ProductId}", command.ProductId);
+            return Result<Product>.Failure(CommercialError.UnexpectedError, "Could not update product price");
         }
     }
 }

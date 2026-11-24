@@ -54,6 +54,12 @@ public partial class Inventory
     public decimal TotalWeightKg { get; private set; }
     public decimal Price { get; private set; }
 
+    public void UpdatePrice(decimal newPrice)
+    {
+        if (newPrice <= 0) throw new ArgumentException("Price must be greater than zero.");
+        Price = newPrice;
+    }
+
     public void UpdateStock(int newQuantity)
     {
         if (newQuantity < 0)

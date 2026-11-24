@@ -20,6 +20,12 @@ public partial class Product
     public string Name { get; private set; }
     public string Description { get; private set; }
     public decimal Price { get; private set; }
+
+    public void UpdatePrice(decimal newPrice)
+    {
+        if (newPrice <= 0) throw new ArgumentException("Price must be greater than zero.");
+        Price = newPrice;
+    }
     public string Type { get; private set; }
     public string? ImageUrl { get; private set; }
 
