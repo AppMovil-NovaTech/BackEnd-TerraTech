@@ -46,7 +46,7 @@ public class PostgreSqlConfigurationTests
         var options = new DbContextOptionsBuilder<PostgreSqlAppDbContext>()
             .UseNpgsql("Host=localhost;Database=terratech_design;Username=design");
         using var db = new PostgreSqlAppDbContext(options.Options);
-        Assert.Equal(2, db.Database.GetMigrations().Count());
+        Assert.Equal(5, db.Database.GetMigrations().Count());
         Assert.False(db.Database.HasPendingModelChanges());
         var sql = db.Database.GenerateCreateScript();
         Assert.Contains("terratech.users", sql);
@@ -56,7 +56,7 @@ public class PostgreSqlConfigurationTests
         var mysqlOptions = new DbContextOptionsBuilder<AppDbContext>()
             .UseMySQL("server=localhost;database=terratech_design;user=design");
         using var mysqlDb = new AppDbContext(mysqlOptions.Options);
-        Assert.Equal(12, mysqlDb.Database.GetMigrations().Count());
+        Assert.Equal(15, mysqlDb.Database.GetMigrations().Count());
         Assert.False(mysqlDb.Database.HasPendingModelChanges());
     }
 
