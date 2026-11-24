@@ -36,6 +36,18 @@ public static class ModelBuilderExtensions
             entity.HasOne<Product>().WithMany().HasForeignKey(f => f.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+        builder.Entity<ProductPreference>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.Id).ValueGeneratedOnAdd();
+            entity.Property(p => p.UserId).IsRequired();
+            entity.Property(p => p.Category).IsRequired().HasMaxLength(50);
+            entity.Property(p => p.CreatedAt).IsRequired();
+            entity.HasIndex(p => new { p.UserId, p.Category }).IsUnique();
+            entity.HasIndex(p => p.Category);
+            entity.HasOne<User>().WithMany().HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
         builder.Entity<Product>(entity =>
         {
             entity.HasKey(p => p.Id);
